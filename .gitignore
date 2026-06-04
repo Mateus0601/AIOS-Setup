@@ -1,0 +1,16 @@
+# Nunca commitar dependencias instaladas
+node_modules/
+**/node_modules/
+
+# Caches/temporarios
+*.log
+.DS_Store
+Thumbs.db
+
+# O payload/ E versionado de proposito (e o motor distribuivel),
+# MAS nunca o node_modules que o npm install possa criar dentro dele:
+payload/aios/lib/node_modules/
+payload/aios/validation/node_modules/
+
+# Backups acidentais
+*.bak-*

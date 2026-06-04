@@ -1,0 +1,259 @@
+{
+  "$schema": "aios-squad-manifest-v1",
+  "id": "squad-produto",
+  "name": "Squad Produto",
+  "description": "Squad responsavel pela camada de produto do AIOS. Define estrategia, pesquisa de mercado, priorizacao de backlog e validacao de requisitos. Opera ANTES da engenharia (VIGIL/FORGE/AEGIS).",
+  "version": "1.0.0",
+  "createdAt": "2026-02-20T07:30:00Z",
+  "status": "active",
+  "agents": {
+    "pm": {
+      "id": "pm",
+      "name": "Morgan",
+      "role": "Product Manager",
+      "description": "Estrategista de produto. Cria PRDs, define direcao estrategica, roadmap, epics e decisoes de negocio.",
+      "definitionFile": "pm.md",
+      "responseSchema": "response-pm",
+      "status": "active",
+      "model": "opus"
+    },
+    "po": {
+      "id": "po",
+      "name": "Pax",
+      "role": "Product Owner",
+      "description": "Guardiao do backlog. Prioriza features, valida requisitos, define criterios de aceitacao.",
+      "definitionFile": "po.md",
+      "responseSchema": "response-po",
+      "status": "active",
+      "model": "opus"
+    },
+    "sm": {
+      "id": "sm",
+      "name": "River",
+      "role": "Scrum Master",
+      "description": "Facilitador de processo. Quebra epics em stories, define acceptance criteria, gerencia impedimentos.",
+      "definitionFile": "sm.md",
+      "responseSchema": "response-sm",
+      "status": "active",
+      "model": "opus"
+    },
+    "analyst": {
+      "id": "analyst",
+      "name": "Atlas",
+      "role": "Business Analyst",
+      "description": "Pesquisador e analista. Pesquisa de mercado, analise competitiva, insights baseados em dados.",
+      "definitionFile": "analyst.md",
+      "responseSchema": "response-analyst",
+      "status": "active",
+      "model": "opus"
+    }
+  },
+  "leader": "pm",
+  "authorityMatrix": {
+    "pm": {
+      "can": [
+        "create_prd",
+        "define_roadmap",
+        "make_strategic_decisions",
+        "delegate_to_squad_agents",
+        "request_research",
+        "prioritize_epics",
+        "approve_backlog_changes",
+        "escalate_to_ultron"
+      ],
+      "cannot": [
+        "write_code",
+        "modify_source_files",
+        "orchestrate_engineering_agents",
+        "override_ultron_decisions",
+        "bypass_aegis_review",
+        "commit_to_git"
+      ]
+    },
+    "po": {
+      "can": [
+        "manage_backlog",
+        "define_acceptance_criteria",
+        "validate_requirements",
+        "prioritize_stories",
+        "approve_story_completion",
+        "review_epic_coherence",
+        "request_story_refinement"
+      ],
+      "cannot": [
+        "write_code",
+        "modify_source_files",
+        "create_prd",
+        "override_pm_decisions",
+        "commit_to_git"
+      ]
+    },
+    "sm": {
+      "can": [
+        "break_epics_into_stories",
+        "define_story_tasks",
+        "generate_story_files",
+        "track_impediments",
+        "facilitate_ceremonies",
+        "suggest_process_improvements",
+        "create_checklists"
+      ],
+      "cannot": [
+        "write_code",
+        "modify_source_files",
+        "make_product_decisions",
+        "override_pm_decisions",
+        "commit_to_git"
+      ]
+    },
+    "analyst": {
+      "can": [
+        "conduct_market_research",
+        "analyze_competitors",
+        "generate_insights",
+        "create_research_reports",
+        "recommend_features",
+        "facilitate_brainstorming",
+        "calculate_roi",
+        "cross_reference_sources"
+      ],
+      "cannot": [
+        "write_code",
+        "modify_source_files",
+        "make_final_product_decisions",
+        "override_pm_decisions",
+        "commit_to_git"
+      ]
+    }
+  },
+  "tokenBudget": {
+    "maxPerCycle": 60000,
+    "warningThreshold": 48000,
+    "distribution": {
+      "pm": 20000,
+      "po": 12000,
+      "sm": 12000,
+      "analyst": 16000
+    },
+    "note": "Budget e guideline, nao hard limit. ULTRON monitora e ajusta conforme necessidade."
+  },
+  "routingTriggers": [
+    {
+      "id": "rt-product-definition",
+      "trigger": "product_definition",
+      "description": "Missao envolve definicao de produto novo, PRD, roadmap, ou direcao estrategica",
+      "keywords": [
+        "prd",
+        "produto",
+        "roadmap",
+        "estrategia",
+        "visao",
+        "mvp",
+        "feature-set",
+        "product"
+      ],
+      "targetAgent": "pm",
+      "priority": "alta",
+      "examples": [
+        "Criar PRD para novo modulo",
+        "Definir roadmap Q2",
+        "Qual deveria ser o MVP do projeto X?"
+      ]
+    },
+    {
+      "id": "rt-market-research",
+      "trigger": "market_research",
+      "description": "Missao envolve pesquisa de mercado, analise competitiva, ou coleta de insights",
+      "keywords": [
+        "pesquisa",
+        "mercado",
+        "competidor",
+        "analise",
+        "benchmark",
+        "research",
+        "market"
+      ],
+      "targetAgent": "analyst",
+      "priority": "media",
+      "examples": [
+        "Pesquisar concorrentes do produto X",
+        "Analisar tendencias de mercado para IA",
+        "Benchmark de features similares"
+      ]
+    },
+    {
+      "id": "rt-backlog-prioritization",
+      "trigger": "backlog_prioritization",
+      "description": "Missao envolve priorizacao de backlog, refinamento de stories, ou gestao de requisitos",
+      "keywords": [
+        "backlog",
+        "priorizar",
+        "priorizacao",
+        "stories",
+        "refinamento",
+        "requisitos",
+        "acceptance"
+      ],
+      "targetAgent": "po",
+      "priority": "media",
+      "examples": [
+        "Priorizar backlog do sprint",
+        "Refinar stories pendentes",
+        "Definir criterios de aceitacao para feature Y"
+      ]
+    }
+  ],
+  "handoffArtifacts": {
+    "toEngineering": [
+      {
+        "type": "prd",
+        "format": "markdown",
+        "location": "~/.claude/aios/docs/PRD-{slug}.md",
+        "producer": "pm",
+        "consumer": "vigil"
+      },
+      {
+        "type": "story_file",
+        "format": "markdown",
+        "location": "~/.claude/aios/stories/story-{timestamp}.md",
+        "producer": "sm",
+        "consumer": "forge"
+      },
+      {
+        "type": "backlog",
+        "format": "json",
+        "location": "~/.claude/aios/squads/produto/backlog.json",
+        "producer": "po",
+        "consumer": "ultron"
+      }
+    ],
+    "fromEngineering": [
+      {
+        "type": "technical_constraints",
+        "format": "text",
+        "producer": "vigil",
+        "consumer": "pm"
+      },
+      {
+        "type": "implementation_status",
+        "format": "text",
+        "producer": "forge",
+        "consumer": "po"
+      },
+      {
+        "type": "review_feedback",
+        "format": "text",
+        "producer": "aegis",
+        "consumer": "pm"
+      }
+    ]
+  },
+  "scopeEnforcement": {
+    "rule": "Agentes do Squad Produto NUNCA escrevem codigo de aplicacao. Sua saida sao DOCUMENTOS (PRDs, backlogs, research reports, stories). A implementacao e responsabilidade exclusiva do Squad Engenharia (VIGIL/FORGE/AEGIS).",
+    "violations": {
+      "action": "reject_and_log",
+      "logAction": "scope_violation",
+      "escalateTo": "ultron"
+    }
+  }
+}

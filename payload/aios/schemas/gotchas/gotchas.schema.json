@@ -1,0 +1,156 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AIOS Gotchas Schema",
+  "description": "Schema for the AIOS gotchas.json file — structured memory of recurring problems and workarounds",
+  "type": "object",
+  "required": ["schema", "lastUpdated", "statistics", "gotchas"],
+  "properties": {
+    "schema": {
+      "type": "string",
+      "const": "aios-gotchas-v1",
+      "tier": 1,
+      "description": "Schema version identifier"
+    },
+    "lastUpdated": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}",
+      "tier": 1,
+      "description": "ISO8601 timestamp of last update"
+    },
+    "statistics": {
+      "type": "object",
+      "tier": 2,
+      "required": ["total", "resolved", "unresolved", "byCategory", "bySeverity"],
+      "properties": {
+        "total": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Total number of gotchas"
+        },
+        "resolved": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of resolved gotchas"
+        },
+        "unresolved": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of unresolved gotchas"
+        },
+        "byCategory": {
+          "type": "object",
+          "description": "Count of gotchas per category",
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "bySeverity": {
+          "type": "object",
+          "description": "Count of gotchas per severity",
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "gotchas": {
+      "type": "array",
+      "tier": 1,
+      "description": "List of known gotchas",
+      "items": {
+        "$ref": "#/definitions/gotchaEntry"
+      }
+    }
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "gotchaEntry": {
+      "type": "object",
+      "required": ["id", "title", "description", "category", "severity", "workaround", "trigger", "source", "project", "resolved", "createdAt"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^g\\d{3}$",
+          "tier": 1,
+          "description": "Unique gotcha identifier in canonical format gNNN (e.g. g001). Pattern matches handoff request.schema context.gotchas.id."
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "tier": 1,
+          "description": "Short descriptive title of the problem"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "tier": 1,
+          "description": "Detailed description of the problem"
+        },
+        "category": {
+          "enum": ["build", "test", "runtime", "integration", "config", "security", "general"],
+          "tier": 1,
+          "description": "Problem category"
+        },
+        "severity": {
+          "enum": ["info", "warning", "critical"],
+          "tier": 1,
+          "description": "Problem severity level"
+        },
+        "workaround": {
+          "type": "string",
+          "minLength": 1,
+          "tier": 1,
+          "description": "Solution or workaround for the problem"
+        },
+        "trigger": {
+          "type": "string",
+          "minLength": 1,
+          "tier": 2,
+          "description": "Conditions that trigger this problem"
+        },
+        "relatedFiles": {
+          "type": "array",
+          "tier": 3,
+          "description": "List of file paths affected by this problem",
+          "items": {
+            "type": "string"
+          }
+        },
+        "source": {
+          "$ref": "../common/enums.json#/definitions/agentOrSystemEnum",
+          "tier": 2,
+          "description": "Agent that discovered/reported this gotcha"
+        },
+        "project": {
+          "type": "string",
+          "minLength": 1,
+          "tier": 1,
+          "description": "Project where this gotcha was detected"
+        },
+        "resolved": {
+          "type": "boolean",
+          "tier": 1,
+          "description": "Whether the gotcha has been resolved"
+        },
+        "resolvedAt": {
+          "oneOf": [
+            { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}" },
+            { "type": "null" }
+          ],
+          "tier": 2,
+          "description": "ISO8601 timestamp when the gotcha was resolved, null if unresolved"
+        },
+        "createdAt": {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}",
+          "tier": 1,
+          "description": "ISO8601 timestamp when the gotcha was created"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

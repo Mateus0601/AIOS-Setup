@@ -1,0 +1,254 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(*)",
+      "Edit(*)",
+      "Write(*)",
+      "Read(*)",
+      "Glob(*)",
+      "Grep(*)",
+      "WebFetch(*)",
+      "WebSearch(*)",
+      "NotebookEdit(*)",
+      "Task(*)",
+      "Agent(*)",
+      "TaskCreate(*)",
+      "TaskGet(*)",
+      "TaskUpdate(*)",
+      "TaskList(*)",
+      "TaskOutput(*)",
+      "TaskStop(*)",
+      "Skill(*)",
+      "EnterPlanMode(*)",
+      "ExitPlanMode(*)",
+      "ToolSearch(*)",
+      "EnterWorktree(*)",
+      "mcp__*",
+      "mcp__context7__resolve-library-id",
+      "mcp__context7__query-docs",
+      "mcp__sequential-thinking__sequentialthinking",
+      "mcp__figma__get_screenshot",
+      "mcp__figma__create_design_system_rules",
+      "mcp__figma__get_design_context",
+      "mcp__figma__get_metadata",
+      "mcp__figma__get_variable_defs",
+      "mcp__figma__get_figjam",
+      "mcp__figma__generate_diagram",
+      "mcp__figma__get_code_connect_map",
+      "mcp__figma__whoami",
+      "mcp__figma__add_code_connect_map",
+      "mcp__figma__get_code_connect_suggestions",
+      "mcp__figma__send_code_connect_mappings",
+      "mcp__memory__create_entities",
+      "mcp__memory__create_relations",
+      "mcp__memory__add_observations",
+      "mcp__memory__delete_entities",
+      "mcp__memory__delete_observations",
+      "mcp__memory__delete_relations",
+      "mcp__memory__read_graph",
+      "mcp__memory__search_nodes",
+      "mcp__memory__open_nodes",
+      "mcp__filesystem__read_file",
+      "mcp__filesystem__read_text_file",
+      "mcp__filesystem__read_media_file",
+      "mcp__filesystem__read_multiple_files",
+      "mcp__filesystem__write_file",
+      "mcp__filesystem__edit_file",
+      "mcp__filesystem__create_directory",
+      "mcp__filesystem__list_directory",
+      "mcp__filesystem__list_directory_with_sizes",
+      "mcp__filesystem__directory_tree",
+      "mcp__filesystem__move_file",
+      "mcp__filesystem__search_files",
+      "mcp__filesystem__get_file_info",
+      "mcp__filesystem__list_allowed_directories",
+      "mcp__claude_ai_Gmail__gmail_get_profile",
+      "mcp__claude_ai_Gmail__gmail_search_messages",
+      "mcp__claude_ai_Gmail__gmail_read_message",
+      "mcp__claude_ai_Gmail__gmail_read_thread",
+      "mcp__claude_ai_Gmail__gmail_list_drafts",
+      "mcp__claude_ai_Gmail__gmail_create_draft",
+      "mcp__sqlite__read_query",
+      "mcp__sqlite__write_query",
+      "mcp__sqlite__create_table",
+      "mcp__sqlite__list_tables",
+      "mcp__sqlite__describe_table",
+      "mcp__figma__generate_figma_design",
+      "mcp__shadcn__get_add_command_for_items",
+      "mcp__shadcn__get_audit_checklist",
+      "mcp__shadcn__get_item_examples_from_registries",
+      "mcp__shadcn__get_project_registries",
+      "mcp__shadcn__list_items_in_registries",
+      "mcp__shadcn__search_items_in_registries",
+      "mcp__shadcn__view_items_in_registries",
+      "mcp__magicui__getRegistryItem",
+      "mcp__magicui__listRegistryItems",
+      "mcp__magicui__searchRegistryItems",
+      "mcp__playwright__*",
+      "mcp__claude_ai_Google_Calendar__gcal_create_event",
+      "mcp__claude_ai_Google_Calendar__gcal_delete_event",
+      "mcp__claude_ai_Google_Calendar__gcal_find_meeting_times",
+      "mcp__claude_ai_Google_Calendar__gcal_find_my_free_time",
+      "mcp__claude_ai_Google_Calendar__gcal_get_event",
+      "mcp__claude_ai_Google_Calendar__gcal_list_calendars",
+      "mcp__claude_ai_Google_Calendar__gcal_list_events",
+      "mcp__claude_ai_Google_Calendar__gcal_respond_to_event",
+      "mcp__claude_ai_Google_Calendar__gcal_update_event",
+      "mcp__claude_ai_Gmail__gmail_list_labels",
+      "mcp__tavily__tavily_search",
+      "mcp__tavily__tavily_extract",
+      "mcp__tavily__tavily_crawl",
+      "mcp__tavily__tavily_map",
+      "mcp__tavily__tavily_research",
+      "mcp__tavily__tavily_skill",
+      "CronCreate(*)",
+      "CronDelete(*)",
+      "CronList(*)",
+      "ExitWorktree(*)",
+      "mcp__exa-search__web_search_exa",
+      "mcp__exa-search__crawling_exa",
+      "mcp__exa-search__get_code_context_exa",
+      "RemoteTrigger(*)",
+      "AskUserQuestion(*)",
+      "SendMessage(*)"
+    ],
+    "deny": [
+      "PowerShell"
+    ],
+    "defaultMode": "acceptEdits"
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$HOME/.claude/hooks/aios-validate.js\"",
+            "timeout": 15,
+            "statusMessage": "Validating AIOS file..."
+          }
+        ]
+      },
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$HOME/.claude/hooks/dashboard-hook.js\" PostToolUse $CLAUDE_SESSION_ID",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$HOME/.claude/hooks/dashboard-hook.js\" PreToolUse $CLAUDE_SESSION_ID",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$HOME/.claude/hooks/dashboard-hook.js\" UserPromptSubmit $CLAUDE_SESSION_ID",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$HOME/.claude/hooks/notify.js\" prompt",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$HOME/.claude/hooks/dashboard-hook.js\" Stop $CLAUDE_SESSION_ID",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$HOME/.claude/hooks/notify.js\" stop",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$HOME/.claude/hooks/dashboard-hook.js\" SubagentStop $CLAUDE_SESSION_ID",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$HOME/.claude/hooks/aios-ingest-prep.js\"",
+            "timeout": 20,
+            "statusMessage": "AIOS ingest prep..."
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$HOME/.claude/hooks/notify.js\" notification",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "node \"$HOME/.claude/statusline.js\""
+  },
+  "enabledPlugins": {
+    "frontend-design@claude-plugins-official": true,
+    "supabase@claude-plugins-official": true
+  },
+  "extraKnownMarketplaces": {
+    "claude-code-plugins": {
+      "source": {
+        "source": "github",
+        "repo": "anthropics/claude-code"
+      }
+    }
+  },
+  "effortLevel": "high",
+  "_note": "Template do AIOS. defaultMode foi trocado de \"bypassPermissions\" para \"acceptEdits\" por seguranca. Para reativar o modo agressivo (auto-aprova tudo) APOS entender os riscos, defina permissions.defaultMode = \"bypassPermissions\" e adicione skipDangerousModePermissionPrompt:true e skipAutoPermissionPrompt:true. Hooks usam node em $HOME/.claude/hooks/*.js — Node 18+ obrigatorio. enabledPlugins/extraKnownMarketplaces sao plugins publicos do marketplace oficial da Anthropic; ajuste a gosto."
+}

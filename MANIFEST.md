@@ -1,0 +1,119 @@
+# MANIFEST — aios-pack
+
+Lista auditavel de EXATAMENTE quais arquivos foram empacotados no `payload/`.
+Gerada automaticamente por `bin/aios-pack.js`. Nao editar a mao.
+
+- Total de arquivos: **108**
+- Arquivos sanitizados: **5**
+- Gate de seguranca: **LIMPO**
+
+| # | Arquivo (destino em ~/.claude/) | Sanitizado |
+|---|---------------------------------|------------|
+| 1 | `aios/.gitignore` | nao |
+| 2 | `aios/AIOS-GUIA.md` | nao |
+| 3 | `aios/concurrency.json` | nao |
+| 4 | `aios/core/handoff_engine.py` | sim |
+| 5 | `aios/evolution-log.md` | nao |
+| 6 | `aios/gotchas.json` | sim |
+| 7 | `aios/lib/activity-log.js` | nao |
+| 8 | `aios/lib/dispatcher.js` | nao |
+| 9 | `aios/lib/filelock.js` | nao |
+| 10 | `aios/lib/html2pdf.js` | nao |
+| 11 | `aios/lib/ingest-trigger.js` | sim |
+| 12 | `aios/lib/jsonl-to-markdown.js` | nao |
+| 13 | `aios/lib/package-lock.json` | nao |
+| 14 | `aios/lib/package.json` | nao |
+| 15 | `aios/lib/runs.js` | nao |
+| 16 | `aios/lib/session-classifier.js` | nao |
+| 17 | `aios/lib/vault-health.js` | nao |
+| 18 | `aios/lib/wiki-lint.js` | nao |
+| 19 | `aios/llm-router-config.json` | nao |
+| 20 | `aios/memory_blocks.json` | sim |
+| 21 | `aios/mission-board.md` | nao |
+| 22 | `aios/plan-config.json` | nao |
+| 23 | `aios/protocols/activity-log-schema.md` | nao |
+| 24 | `aios/protocols/agent-templates.md` | nao |
+| 25 | `aios/protocols/aios-workflow.md` | nao |
+| 26 | `aios/protocols/browser-protocol.md` | nao |
+| 27 | `aios/protocols/checkpoint-protocol.md` | nao |
+| 28 | `aios/protocols/filelock-protocol.md` | nao |
+| 29 | `aios/protocols/group-chat-protocol.md` | nao |
+| 30 | `aios/protocols/handoff-protocol.md` | nao |
+| 31 | `aios/protocols/memory-protocol.md` | nao |
+| 32 | `aios/protocols/runs-protocol.md` | nao |
+| 33 | `aios/protocols/squad-protocol.md` | nao |
+| 34 | `aios/protocols/story-files-protocol.md` | nao |
+| 35 | `aios/schemas/activity-log/activities.schema.json` | nao |
+| 36 | `aios/schemas/activity-log/decisions.schema.json` | nao |
+| 37 | `aios/schemas/activity-log/discussions.schema.json` | nao |
+| 38 | `aios/schemas/activity-log/tasks.schema.json` | nao |
+| 39 | `aios/schemas/checkpoint/checkpoint-index.schema.json` | nao |
+| 40 | `aios/schemas/checkpoint/checkpoint.schema.json` | nao |
+| 41 | `aios/schemas/common/enums.json` | nao |
+| 42 | `aios/schemas/gotchas/gotchas.schema.json` | nao |
+| 43 | `aios/schemas/handoff/request.schema.json` | nao |
+| 44 | `aios/schemas/handoff/response-aegis.schema.json` | nao |
+| 45 | `aios/schemas/handoff/response-analyst.schema.json` | nao |
+| 46 | `aios/schemas/handoff/response-forge.schema.json` | nao |
+| 47 | `aios/schemas/handoff/response-link.schema.json` | nao |
+| 48 | `aios/schemas/handoff/response-pm.schema.json` | nao |
+| 49 | `aios/schemas/handoff/response-po.schema.json` | nao |
+| 50 | `aios/schemas/handoff/response-sm.schema.json` | nao |
+| 51 | `aios/schemas/handoff/response-vigil.schema.json` | nao |
+| 52 | `aios/schemas/status/runs-index.schema.json` | nao |
+| 53 | `aios/schemas/status/status.schema.json` | nao |
+| 54 | `aios/schemas/wiki-frontmatter.json` | nao |
+| 55 | `aios/skills/api-design.md` | nao |
+| 56 | `aios/skills/backend-patterns.md` | nao |
+| 57 | `aios/skills/cicd-monitoring.md` | nao |
+| 58 | `aios/skills/database-design.md` | nao |
+| 59 | `aios/skills/frontend-design.md` | nao |
+| 60 | `aios/skills/infrastructure.md` | nao |
+| 61 | `aios/skills/pdf-generation.md` | nao |
+| 62 | `aios/skills/security-auth.md` | nao |
+| 63 | `aios/skills/system-architecture.md` | nao |
+| 64 | `aios/squads/growth/link.md` | nao |
+| 65 | `aios/squads/growth/squad-manifest.json` | nao |
+| 66 | `aios/squads/produto/analyst.md` | nao |
+| 67 | `aios/squads/produto/pm.md` | nao |
+| 68 | `aios/squads/produto/po.md` | nao |
+| 69 | `aios/squads/produto/sm.md` | nao |
+| 70 | `aios/squads/produto/squad-manifest.json` | nao |
+| 71 | `aios/templates/llm-client.js` | nao |
+| 72 | `aios/validation/README.md` | nao |
+| 73 | `aios/validation/test-dispatcher.js` | nao |
+| 74 | `aios/validation/test-filelock.js` | nao |
+| 75 | `aios/validation/test-runs-e2e.js` | nao |
+| 76 | `aios/validation/test-runs-smoke.js` | nao |
+| 77 | `aios/validation/validate.js` | nao |
+| 78 | `commands/aegis.md` | nao |
+| 79 | `commands/aios-pack.md` | nao |
+| 80 | `commands/aios-tour.md` | nao |
+| 81 | `commands/aios.md` | nao |
+| 82 | `commands/analyst.md` | nao |
+| 83 | `commands/artifact.md` | nao |
+| 84 | `commands/continue.md` | nao |
+| 85 | `commands/decision.md` | nao |
+| 86 | `commands/fast-mode.md` | nao |
+| 87 | `commands/forge.md` | nao |
+| 88 | `commands/implementacao.md` | nao |
+| 89 | `commands/link-prospect.md` | nao |
+| 90 | `commands/missao.md` | nao |
+| 91 | `commands/pm.md` | nao |
+| 92 | `commands/po.md` | nao |
+| 93 | `commands/sm.md` | nao |
+| 94 | `commands/ultron.md` | nao |
+| 95 | `commands/vigil.md` | nao |
+| 96 | `commands/wiki-ingest.md` | nao |
+| 97 | `hooks/aios-ingest-prep.js` | nao |
+| 98 | `hooks/aios-validate.js` | nao |
+| 99 | `hooks/bridge-launcher.bat` | nao |
+| 100 | `hooks/bridge-launcher.sh` | nao |
+| 101 | `hooks/dashboard-hook.js` | nao |
+| 102 | `hooks/notify.js` | nao |
+| 103 | `hooks/telegram-bridge.js` | nao |
+| 104 | `rules/doc-roots.md` | nao |
+| 105 | `rules/ultron-core.md` | nao |
+| 106 | `settings.template.json` | sim |
+| 107 | `statusline-command.sh` | nao |
+| 108 | `statusline.js` | nao |

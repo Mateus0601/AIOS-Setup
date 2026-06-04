@@ -1,0 +1,61 @@
+{
+  "schema": "aios-llm-router-v1",
+  "description": "Configuração do LLM Router para apps gerados pelo FORGE. NÃO é usado pelo AIOS core (que roda no Claude Code MAX flat rate).",
+  "provider": {
+    "name": "openrouter",
+    "baseUrl": "https://openrouter.ai/api/v1",
+    "apiKeyEnv": "OPENROUTER_API_KEY",
+    "docs": "https://openrouter.ai/docs"
+  },
+  "tiers": {
+    "fast": {
+      "description": "Tarefas simples: parsing, classificação, extração, templates, tradução, formatação",
+      "model": "deepseek/deepseek-chat-v3-0324",
+      "costPer1MTokens": 0.14,
+      "maxTokens": 4096,
+      "examples": [
+        "Classificar lead como quente/frio/morto",
+        "Extrair dados de um formulário",
+        "Formatar texto em markdown",
+        "Traduzir texto simples",
+        "Resumir em 1 frase"
+      ]
+    },
+    "balanced": {
+      "description": "Tarefas intermediárias: resumos longos, escrita de rascunhos, análise moderada, código simples",
+      "model": "anthropic/claude-sonnet-4",
+      "costPer1MTokens": 3.00,
+      "maxTokens": 8192,
+      "examples": [
+        "Escrever rascunho de email marketing",
+        "Resumir documento longo com nuance",
+        "Gerar código boilerplate",
+        "Responder perguntas de suporte"
+      ]
+    },
+    "quality": {
+      "description": "Tarefas críticas: copy de vendas final, análise estratégica, código complexo, decisões importantes",
+      "model": "anthropic/claude-opus-4",
+      "costPer1MTokens": 15.00,
+      "maxTokens": 16384,
+      "examples": [
+        "Copy de vendas final para landing page",
+        "Análise estratégica de mercado",
+        "Debug de código complexo",
+        "Revisão crítica de documento importante"
+      ]
+    }
+  },
+  "fallbackChain": ["fast", "balanced", "quality"],
+  "budgetLimits": {
+    "dailyMaxUSD": 5.00,
+    "monthlyMaxUSD": 50.00,
+    "alertAtPercent": 80
+  },
+  "defaults": {
+    "tier": "fast",
+    "temperature": 0.7,
+    "retryOnError": true,
+    "maxRetries": 2
+  }
+}

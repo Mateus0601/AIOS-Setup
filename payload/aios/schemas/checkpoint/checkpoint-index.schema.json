@@ -1,0 +1,102 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "aios-checkpoint-index-v1",
+  "title": "AIOS Checkpoint Index",
+  "description": "Schema for the AIOS central checkpoint index",
+  "type": "object",
+  "required": ["schema", "lastUpdated", "activeCheckpoints", "archivedCheckpoints"],
+  "additionalProperties": false,
+  "properties": {
+
+    "schema": {
+      "const": "aios-checkpoint-index-v1",
+      "description": "Schema version identifier"
+    },
+
+    "lastUpdated": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO8601 timestamp of the last index update"
+    },
+
+    "activeCheckpoints": {
+      "type": "array",
+      "description": "Active checkpoints — projects in progress or paused",
+      "items": {
+        "type": "object",
+        "required": ["project", "slug", "savedAt", "status"],
+        "additionalProperties": false,
+        "properties": {
+          "project": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Project name"
+          },
+          "slug": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-z0-9-]+$",
+            "description": "Project slug used as filename (kebab-case, only a-z 0-9 and hyphen)"
+          },
+          "savedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp of the last time the checkpoint was saved"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["paused", "active", "completed", "crashed"],
+            "description": "Current state of the checkpoint"
+          },
+          "lastActiveAgent": {
+            "$ref": "../common/enums.json#/definitions/agentOrSystemEnum",
+            "description": "Last active agent recorded in the checkpoint"
+          },
+          "nextActionSummary": {
+            "type": "string",
+            "description": "One-line summary of the next action — for dashboard display and multi-project listings"
+          }
+        }
+      }
+    },
+
+    "archivedCheckpoints": {
+      "type": "array",
+      "description": "Archived checkpoints — completed or discarded projects",
+      "items": {
+        "type": "object",
+        "required": ["project", "slug", "savedAt", "archivedAt", "archiveReason"],
+        "additionalProperties": false,
+        "properties": {
+          "project": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Project name"
+          },
+          "slug": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-z0-9-]+$",
+            "description": "Project slug"
+          },
+          "savedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp of when the checkpoint was last saved before archiving"
+          },
+          "archivedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp of when the checkpoint was archived"
+          },
+          "archiveReason": {
+            "type": "string",
+            "enum": ["completed", "auto_detected_completion", "user_discarded"],
+            "description": "Reason for archiving: completed = user confirmed completion, auto_detected_completion = all tasks are done in activity-log, user_discarded = user discarded explicitly"
+          }
+        }
+      }
+    }
+
+  }
+}

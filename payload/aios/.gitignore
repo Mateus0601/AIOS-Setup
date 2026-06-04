@@ -1,0 +1,4 @@
+secrets/
+logs/
+*.log
+node_modules/

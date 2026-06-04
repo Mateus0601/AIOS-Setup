@@ -1,0 +1,138 @@
+{
+  "$schema": "aios-squad-manifest-v1",
+  "id": "squad-growth",
+  "name": "Squad Growth",
+  "description": "Squad responsavel por prospeccao, outreach e growth do AIOS. Encontra leads, cria conteudo de atracao, gerencia pipeline de contatos e executa campanhas. Opera em paralelo com Squad Produto e Squad Engenharia — pode ser ativado por trigger especifico ou invocado manualmente via /prospect.",
+  "version": "1.0.0",
+  "createdAt": "2026-02-27T00:00:00Z",
+  "status": "active",
+
+  "agents": {
+    "link": {
+      "id": "link",
+      "name": "Link",
+      "role": "Prospector",
+      "description": "Hunter de leads e growth hacker. Prospecta canais, cria outreach personalizado, monitora sinais de mercado, gerencia pipeline SQLite e executa campanhas de atracao. Sempre Opus (melhor modelo) — sem roteamento por custo.",
+      "definitionFile": "link.md",
+      "responseSchema": "response-link",
+      "status": "active",
+      "model": "opus"
+    }
+  },
+
+  "leader": "link",
+
+  "authorityMatrix": {
+    "link": {
+      "can": [
+        "search_web",
+        "fetch_urls",
+        "create_content_drafts",
+        "find_contacts_info",
+        "manage_pipeline_sqlite",
+        "draft_emails",
+        "send_emails_with_approval",
+        "monitor_social_signals",
+        "create_campaign_plans",
+        "read_research_reports",
+        "generate_outreach_reports"
+      ],
+      "cannot": [
+        "write_application_code",
+        "modify_source_files",
+        "commit_to_git",
+        "send_emails_without_approval",
+        "post_social_media_without_approval",
+        "make_product_decisions",
+        "override_ultron_decisions",
+        "orchestrate_agents"
+      ]
+    }
+  },
+
+  "tokenBudget": {
+    "maxPerCycle": 30000,
+    "warningThreshold": 24000,
+    "distribution": {
+      "link": 30000
+    },
+    "note": "Budget e guideline, nao hard limit. ULTRON monitora e ajusta conforme necessidade."
+  },
+
+  "routingTriggers": [
+    {
+      "id": "rt-prospecting",
+      "trigger": "prospecting",
+      "description": "Missao envolve prospeccao, outreach, encontrar leads, growth hacking",
+      "keywords": ["prospeccao", "prospectar", "outreach", "leads", "prospects", "growth", "encontrar pessoas", "abordagem", "email marketing", "build in public", "pipeline", "comunidade encontrar", "atrair membros"],
+      "targetAgent": "link",
+      "priority": "alta",
+      "examples": [
+        "Prospectar canais para atrair devs",
+        "Criar outreach para comunidade X",
+        "Gerenciar pipeline de leads",
+        "Encontrar emails de prospects",
+        "Criar post build-in-public",
+        "Planejar campanha de growth"
+      ]
+    }
+  ],
+
+  "storage": {
+    "sqlite": {
+      "path": "~/.claude/aios/squads/growth/pipeline.db",
+      "tables": ["prospects", "outreach_log", "campaigns"],
+      "description": "Pipeline de contatos e historico de outreach"
+    }
+  },
+
+  "gmailIntegration": {
+    "enabled": true,
+    "tools": [
+      "mcp__claude_ai_Gmail__gmail_create_draft",
+      "mcp__claude_ai_Gmail__gmail_search_messages",
+      "mcp__claude_ai_Gmail__gmail_read_message",
+      "mcp__claude_ai_Gmail__gmail_read_thread"
+    ],
+    "rule": "NUNCA enviar email sem aprovacao explicita do usuario via ULTRON"
+  },
+
+  "handoffArtifacts": {
+    "toNexus": [
+      {
+        "type": "prospect_list",
+        "format": "json_in_response",
+        "producer": "link",
+        "consumer": "ultron"
+      },
+      {
+        "type": "outreach_drafts",
+        "format": "text_in_response",
+        "producer": "link",
+        "consumer": "ultron"
+      },
+      {
+        "type": "pipeline_report",
+        "format": "text_in_response",
+        "producer": "link",
+        "consumer": "ultron"
+      },
+      {
+        "type": "email_drafts",
+        "format": "text_in_response",
+        "producer": "link",
+        "consumer": "ultron",
+        "note": "Sempre requer aprovacao antes de enviar"
+      }
+    ]
+  },
+
+  "scopeEnforcement": {
+    "rule": "Link NUNCA envia emails ou posta em redes sociais sem aprovacao explicita. Link prepara tudo, apresenta ao usuario via ULTRON, e so executa apos OK.",
+    "violations": {
+      "action": "reject_and_log",
+      "logAction": "scope_violation",
+      "escalateTo": "ultron"
+    }
+  }
+}

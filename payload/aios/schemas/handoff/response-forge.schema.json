@@ -1,0 +1,191 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "FORGE Response Schema",
+  "description": "Schema for FORGE [Executor] structured response back to ULTRON. Contains implementation results, file modifications, test outcomes, and build status.",
+  "type": "object",
+  "required": ["agent", "status", "summary", "artifacts", "issues", "metadata"],
+  "properties": {
+    "agent": {
+      "type": "string",
+      "const": "forge",
+      "description": "Agent identifier — always 'forge' for this response schema"
+    },
+    "status": {
+      "enum": ["success", "partial", "error"],
+      "description": "Overall status of the implementation. 'success' = all tasks completed, 'partial' = some tasks completed, 'error' = could not implement."
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 500,
+      "description": "1-2 sentence summary of what FORGE implemented. Used by ULTRON for consolidation and by AEGIS for review."
+    },
+    "artifacts": {
+      "type": "object",
+      "required": ["completedTasks", "modifiedFiles", "testsRun", "storyFileUpdated"],
+      "description": "Concrete outputs produced by FORGE's implementation work",
+      "properties": {
+        "completedTasks": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "List of task IDs completed (e.g. ['T1', 'T2', 'T3'])"
+        },
+        "modifiedFiles": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["path", "action"],
+            "properties": {
+              "path": {
+                "type": "string",
+                "description": "File path relative to the project root or absolute path"
+              },
+              "action": {
+                "enum": ["created", "modified", "deleted"],
+                "description": "What was done to the file"
+              }
+            },
+            "additionalProperties": false
+          },
+          "description": "All files created, modified, or deleted during implementation"
+        },
+        "testsRun": {
+          "type": "object",
+          "required": ["passed", "failed", "skipped"],
+          "properties": {
+            "passed": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Number of tests that passed"
+            },
+            "failed": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Number of tests that failed"
+            },
+            "skipped": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Number of tests that were skipped"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Test execution results summary"
+        },
+        "storyFileUpdated": {
+          "type": "boolean",
+          "description": "Whether the story file was updated with completed task checkboxes"
+        },
+        "reactIterations": {
+          "type": "object",
+          "description": "ReACT loop iteration details — how many internal REASON-ACT-OBSERVE cycles FORGE ran and what was self-corrected before sending to AEGIS. Optional; defaults indicate single-pass (no ReACT loop).",
+          "required": ["totalAttempts", "selfCorrections", "finalObserveStatus"],
+          "properties": {
+            "totalAttempts": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 5,
+              "default": 1,
+              "description": "Total number of REASON-ACT-OBSERVE iterations FORGE executed. 1 = single pass (no self-correction needed)."
+            },
+            "selfCorrections": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["iteration", "issue", "fix"],
+                "properties": {
+                  "iteration": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Which iteration detected and fixed this issue"
+                  },
+                  "issue": {
+                    "type": "string",
+                    "description": "Description of the issue found during OBSERVE phase"
+                  },
+                  "fix": {
+                    "type": "string",
+                    "description": "Description of the fix applied in the subsequent ACT phase"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "description": "List of issues found and fixed during internal iterations. Empty array if no self-corrections were needed."
+            },
+            "finalObserveStatus": {
+              "enum": ["passed", "failed", "partial"],
+              "description": "Final status of the last OBSERVE phase. 'passed' = all checks OK, 'failed' = issues remain (escalated to AEGIS), 'partial' = some checks passed but others could not be verified."
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "issues": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["severity", "description"],
+        "properties": {
+          "severity": {
+            "enum": ["warning", "error"],
+            "description": "Severity of the issue encountered during implementation"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of the issue"
+          },
+          "suggestion": {
+            "type": "string",
+            "description": "Suggested resolution or workaround"
+          }
+        },
+        "additionalProperties": false
+      },
+      "description": "Issues or blockers encountered during implementation"
+    },
+    "metadata": {
+      "type": "object",
+      "required": ["linesAdded", "linesRemoved", "buildStatus"],
+      "description": "Meta-information about the implementation process",
+      "properties": {
+        "linesAdded": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Approximate number of lines added across all files"
+        },
+        "linesRemoved": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Approximate number of lines removed across all files"
+        },
+        "buildStatus": {
+          "enum": ["passed", "failed", "skipped"],
+          "description": "Whether the build/compilation passed after implementation"
+        },
+        "freeText": {
+          "type": "string",
+          "description": "Optional free-text field for additional unstructured context (Phase 1 hybrid mode)"
+        },
+        "position": {
+          "type": ["string", "null"],
+          "default": null,
+          "description": "Agent's position in Deliberative Group Chat. Format: 'agree_with:{agent}', 'disagree', or 'propose:{alternative}'. Null when not participating in a group chat round."
+        },
+        "reactEnabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether FORGE executed the ReACT (REASON-ACT-OBSERVE) internal loop for this task. True by default; false if FORGE skipped ReACT (e.g. trivial change, or explicitly disabled)."
+        },
+        "vaultConsulted": {
+          "type": "boolean",
+          "default": false,
+          "description": "Confirmation of the MANDATORY step-0 Vault consultation. True = FORGE consulted the Vault paths in context.vaultPaths (or attempted and found them empty) BEFORE implementing. False/absent = not consulted (only acceptable for a new project with an empty Vault). Optional for backward compatibility, but FORGE MUST set it true on every mission."
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

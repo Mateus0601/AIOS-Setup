@@ -1,0 +1,80 @@
+{
+  "schema": "aios-gotchas-v1",
+  "lastUpdated": "<gerado-na-instalacao>",
+  "statistics": {
+    "total": 3,
+    "resolved": 1,
+    "unresolved": 2,
+    "byCategory": {
+      "config": 1,
+      "runtime": 2
+    },
+    "bySeverity": {
+      "warning": 1,
+      "critical": 2
+    }
+  },
+  "gotchas": [
+    {
+      "id": "g004",
+      "title": "Schemas não aceitavam IDs antigos dos agentes",
+      "description": "Após renomear os agentes para ULTRON/VIGIL/FORGE/AEGIS, os schemas de validação JSON foram atualizados mas não mantiveram backward compatibility com os IDs antigos (orquestrador, estrategista, executor, revisor). O validador passava a rejeitar entradas legadas do activity-log.json que usavam a nomenclatura anterior.",
+      "category": "config",
+      "severity": "warning",
+      "workaround": "Adicionar os IDs antigos (orquestrador, estrategista, executor, revisor) aos enums de agente em todos os schemas. O common/enums.json deve conter ambos os conjuntos de valores para garantir que dados históricos continuem válidos.",
+      "trigger": "Execução do validador (node ~/.claude/aios/validation/validate.js) em activity-logs que contêm entradas criadas antes da renomeação dos agentes.",
+      "relatedFiles": [
+        "~/.claude/aios/schemas/common/enums.json",
+        "~/.claude/aios/schemas/activity-log/activities.schema.json",
+        "~/.claude/aios/schemas/activity-log/tasks.schema.json",
+        "~/.claude/aios/schemas/activity-log/decisions.schema.json",
+        "~/.claude/aios/schemas/activity-log/discussions.schema.json"
+      ],
+      "source": "aegis",
+      "project": "aios-core",
+      "resolved": true,
+      "resolvedAt": "2026-02-17T12:10:00Z",
+      "createdAt": "2026-02-17T12:08:00Z"
+    },
+    {
+      "id": "g005",
+      "title": "Checkpoint não é salvo quando terminal fecha abruptamente",
+      "description": "O Checkpoint System só salvava estado no fim de ciclo, em checkpoint com usuário, ou em pausa explícita. Quando o terminal era fechado abruptamente (Ctrl+C, fechar janela), nenhum estado era persistido. O /continue então reportava 'nenhum trabalho pendente' mesmo que uma missão estivesse em andamento. Corrigido com Two-Tier Save System: status.json enriquecido funciona como early save a cada transição de fase, e /continue agora tem 3 níveis de recovery cascade.",
+      "category": "runtime",
+      "severity": "critical",
+      "workaround": "Corrigido: status.json agora tem campos de recovery (activeStoryFile, lastActivityIds, modifiedFiles, recoveryHint) atualizados a cada transição de fase. /continue usa cascade checkpoint → status.json crash detection → story file fallback.",
+      "trigger": "Fechar terminal (Ctrl+C, X, crash do processo) durante uma missão AIOS.",
+      "relatedFiles": [
+        "~/.claude/aios/status.json",
+        "~/.claude/aios/schemas/status/status.schema.json",
+        "~/.claude/commands/continue.md",
+        "~/.claude/aios/protocols/checkpoint-protocol.md",
+        "~/.claude/aios/protocols/aios-workflow.md"
+      ],
+      "source": "ultron",
+      "project": "aios-core",
+      "resolved": false,
+      "resolvedAt": null,
+      "createdAt": "2026-02-18T17:00:00Z"
+    },
+    {
+      "id": "g007",
+      "title": "Dev server killed pode causar perda de progresso",
+      "description": "Quando um dev server (npm run dev, node server.js, etc) roda como foreground process no Bash tool e o usuario fecha a porta ou mata o processo, o Claude Code pode perder a sessao inteira e todo o progresso nao commitado ou nao salvo no activity-log.",
+      "category": "runtime",
+      "severity": "critical",
+      "workaround": "SEMPRE usar run_in_background:true ao iniciar dev servers via Bash tool. Salvar checkpoint ANTES de iniciar qualquer processo long-running. Commitar mudancas parciais antes de spawnar dev server.",
+      "trigger": "Antes de iniciar qualquer dev server (npm run dev, python manage.py runserver, node server.js, next dev, vite dev, etc).",
+      "relatedFiles": [
+        "~/.claude/aios/protocols/checkpoint-protocol.md",
+        "~/.claude/aios/status.json"
+      ],
+      "source": "ultron",
+      "project": "aios-core",
+      "resolved": false,
+      "resolvedAt": null,
+      "createdAt": "2026-03-18T00:00:00Z",
+      "createdBy": "ultron"
+    }
+  ]
+}

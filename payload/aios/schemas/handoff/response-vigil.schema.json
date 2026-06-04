@@ -1,0 +1,137 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "VIGIL Response Schema",
+  "description": "Schema for VIGIL [Strategist] structured response back to ULTRON. Contains strategic analysis, decisions, architecture guidance, and risks.",
+  "type": "object",
+  "required": ["agent", "status", "summary", "artifacts", "issues", "metadata"],
+  "properties": {
+    "agent": {
+      "type": "string",
+      "const": "vigil",
+      "description": "Agent identifier — always 'vigil' for this response schema"
+    },
+    "status": {
+      "enum": ["success", "partial", "error"],
+      "description": "Overall status of the agent's work. 'success' = completed fully, 'partial' = completed with caveats, 'error' = could not complete."
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 500,
+      "description": "1-2 sentence summary of what VIGIL analyzed/decided. Used by ULTRON for consolidation."
+    },
+    "artifacts": {
+      "type": "object",
+      "required": ["storyFile", "storyTaskCount", "decisions", "architecture", "risks"],
+      "description": "Concrete outputs produced by VIGIL's analysis",
+      "properties": {
+        "storyFile": {
+          "type": ["string", "null"],
+          "description": "Path or name of the story file created by VIGIL (e.g. 'story-20260218T220000.md'), null if no story file was generated"
+        },
+        "storyTaskCount": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of tasks defined in the story file (0 if no story file)"
+        },
+        "decisions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["topic", "decision", "justification", "alternatives"],
+            "properties": {
+              "topic": {
+                "type": "string",
+                "description": "What decision topic was evaluated"
+              },
+              "decision": {
+                "type": "string",
+                "description": "The chosen approach/decision"
+              },
+              "justification": {
+                "type": "string",
+                "description": "Why this approach was chosen over alternatives"
+              },
+              "alternatives": {
+                "type": "array",
+                "items": { "type": "string" },
+                "description": "Alternative approaches that were considered and rejected"
+              }
+            },
+            "additionalProperties": false
+          },
+          "description": "Strategic decisions made during analysis"
+        },
+        "architecture": {
+          "type": "string",
+          "description": "Architecture description or guidance for the implementation phase"
+        },
+        "risks": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Identified risks, caveats, or concerns about the approach"
+        }
+      },
+      "additionalProperties": false
+    },
+    "issues": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["severity", "description"],
+        "properties": {
+          "severity": {
+            "enum": ["warning", "error"],
+            "description": "Severity of the issue"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of the issue found"
+          },
+          "suggestion": {
+            "type": "string",
+            "description": "Suggested resolution for the issue"
+          }
+        },
+        "additionalProperties": false
+      },
+      "description": "Issues or blockers found during analysis"
+    },
+    "metadata": {
+      "type": "object",
+      "required": ["analysisDepth", "debateRequired", "debateTopics"],
+      "description": "Meta-information about the analysis process",
+      "properties": {
+        "analysisDepth": {
+          "enum": ["full", "quick"],
+          "description": "Whether a full or quick analysis was performed"
+        },
+        "debateRequired": {
+          "type": "boolean",
+          "description": "Whether VIGIL recommends an inter-agent debate before proceeding"
+        },
+        "debateTopics": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Topics that should be debated if debateRequired is true"
+        },
+        "freeText": {
+          "type": "string",
+          "description": "Optional free-text field for additional unstructured context (Phase 1 hybrid mode)"
+        },
+        "position": {
+          "type": ["string", "null"],
+          "default": null,
+          "description": "Agent's position in Deliberative Group Chat. Format: 'agree_with:{agent}', 'disagree', or 'propose:{alternative}'. Null when not participating in a group chat round."
+        },
+        "vaultConsulted": {
+          "type": "boolean",
+          "default": false,
+          "description": "Confirmation of the MANDATORY step-0 Vault consultation. True = VIGIL consulted the Vault paths in context.vaultPaths (or attempted and found them empty) BEFORE planning. False/absent = not consulted (only acceptable for a new project with an empty Vault). Optional for backward compatibility, but VIGIL MUST set it true on every mission."
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

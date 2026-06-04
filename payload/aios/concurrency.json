@@ -1,0 +1,9 @@
+{
+  "schema": "aios-concurrency-v1",
+  "maxConcurrentRuns": 2,
+  "maxConcurrentAgentsPerRun": 2,
+  "maxConcurrentAgentsGlobal": 3,
+  "queuePolicy": "fifo",
+  "degradeToSequentialOnPressure": true,
+  "_comment": "Cap conservador para i5-7200U/8GB (gotcha g020: ~2-3 agentes reais). NAO hardcoded: na nuvem/maquina melhor, suba os numeros e o mesmo motor escala sem mudar codigo (caminho de portabilidade da Fase B)."
+}

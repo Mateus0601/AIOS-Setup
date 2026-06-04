@@ -1,0 +1,457 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Handoff Request Schema",
+  "description": "Schema for the HandoffRequest envelope sent from ULTRON to agents (VIGIL, FORGE, AEGIS from the Engineering Squad; PM, PO, SM, Analyst from the Product Squad). Uses the Envelope Pattern with a single base schema and conditional fields per target agent.",
+  "type": "object",
+  "required": ["$schema", "target", "mission", "context", "chain", "instructions"],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "const": "handoff-request-v1",
+      "description": "Schema version identifier for the handoff request"
+    },
+    "target": {
+      "enum": ["vigil", "forge", "aegis", "pm", "po", "sm", "analyst", "link"],
+      "description": "Target agent that will receive this handoff request"
+    },
+    "mission": {
+      "type": "object",
+      "required": ["id", "description", "project", "priority"],
+      "description": "Mission context — what needs to be accomplished",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Reference to the task ID from activity-log.json (e.g. '5' or 'T3')"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Human-readable description of the mission objective"
+        },
+        "project": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Project name, matching activity-log.json and status.json project field"
+        },
+        "priority": {
+          "enum": ["baixa", "media", "alta", "critica"],
+          "description": "Priority level of the mission"
+        },
+        "complexity": {
+          "oneOf": [
+            { "enum": ["simple", "medium", "complex"] },
+            { "type": "null" }
+          ],
+          "default": null,
+          "description": "Mission complexity classification determined by ULTRON. 'simple' = FORGE+AEGIS only, 'medium' = full cycle, 'complex' = full cycle + Group Chat. Null for backward compatibility with older requests."
+        }
+      },
+      "additionalProperties": false
+    },
+    "context": {
+      "type": "object",
+      "required": ["storyFile", "storyTasks", "assignedTasks", "gotchas", "decisions", "modifiedFiles"],
+      "description": "Contextual information the agent needs to do its work",
+      "properties": {
+        "vaultPaths": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": [],
+          "description": "Vault paths/queries (relative to ~/Documents/COFRE -01/wiki/, e.g. 'wiki/patterns', 'wiki/decisions/auth') that ULTRON injects per role for the agent's MANDATORY step-0 Vault consultation. Mirrors the gotchas push pattern: ULTRON filters relevant Vault paths by role (VIGIL: wiki/patterns+wiki/decisions; FORGE: wiki/knowledge of the stack; AEGIS: wiki/decisions of the area) and injects them here. Empty array = ULTRON found nothing relevant (or new project with empty Vault) — the agent still attempts a consult and proceeds if empty."
+        },
+        "storyFile": {
+          "type": ["string", "null"],
+          "description": "Path or name of the active story file (e.g. 'story-20260218T220000.md'), null if no story file exists"
+        },
+        "storyTasks": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of all tasks from the story file in format 'T1: description'"
+        },
+        "assignedTasks": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Subset of storyTasks assigned to this specific agent (e.g. ['T3', 'T5'])"
+        },
+        "gotchas": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "title", "workaround"],
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^g\\d{3}$",
+                "description": "Gotcha ID in format gNNN (e.g. 'g001')"
+              },
+              "title": {
+                "type": "string",
+                "description": "Brief title of the known issue"
+              },
+              "workaround": {
+                "type": "string",
+                "description": "Known workaround for the issue"
+              }
+            },
+            "additionalProperties": false
+          },
+          "description": "Active gotchas relevant to this task (filtered by project + category, max 3)"
+        },
+        "decisions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "decision", "justification"],
+            "properties": {
+              "id": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "Decision ID from activity-log.json"
+              },
+              "decision": {
+                "type": "string",
+                "description": "The decision that was made"
+              },
+              "justification": {
+                "type": "string",
+                "description": "Justification for the decision"
+              }
+            },
+            "additionalProperties": false
+          },
+          "description": "Relevant prior decisions from the activity-log for this mission"
+        },
+        "modifiedFiles": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Files already modified in the current cycle (for awareness and conflict avoidance)"
+        }
+      },
+      "additionalProperties": false
+    },
+    "chain": {
+      "type": "object",
+      "required": ["vigilOutput", "forgeOutput", "debateHistory"],
+      "description": "Chain of outputs from previous agents in the pipeline. Enables downstream agents to build on upstream work.",
+      "properties": {
+        "vigilOutput": {
+          "type": ["string", "null"],
+          "description": "VIGIL's analysis/strategy output. Required for FORGE and AEGIS, null for VIGIL."
+        },
+        "forgeOutput": {
+          "type": ["string", "null"],
+          "description": "FORGE's implementation output. Required for AEGIS, null for VIGIL and FORGE."
+        },
+        "debateHistory": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["from", "to", "topic", "message"],
+            "properties": {
+              "from": {
+                "$ref": "../common/enums.json#/definitions/agentEnum",
+                "description": "Agent that sent the debate message"
+              },
+              "to": {
+                "$ref": "../common/enums.json#/definitions/agentEnum",
+                "description": "Agent that received the debate message"
+              },
+              "topic": {
+                "type": "string",
+                "description": "Topic of the debate"
+              },
+              "message": {
+                "type": "string",
+                "description": "Content of the debate message"
+              }
+            },
+            "additionalProperties": false
+          },
+          "description": "History of inter-agent debates relevant to this handoff"
+        }
+      },
+      "additionalProperties": false
+    },
+    "instructions": {
+      "type": "object",
+      "required": ["persona", "responseSchema", "maxRetries"],
+      "description": "Meta-instructions for the agent on how to behave and respond",
+      "properties": {
+        "persona": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Full persona prompt for the target agent (defines role, behavior, constraints)"
+        },
+        "responseSchema": {
+          "type": "string",
+          "enum": ["response-vigil", "response-forge", "response-aegis", "response-pm", "response-po", "response-sm", "response-analyst", "response-link"],
+          "description": "Name of the expected response schema the agent must use"
+        },
+        "maxRetries": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 5,
+          "default": 2,
+          "description": "Maximum number of retries if the agent's response fails validation"
+        },
+        "retryHint": {
+          "type": ["string", "null"],
+          "description": "Hint provided on retry attempts to guide the agent toward valid output. Null on first attempt."
+        },
+        "maxReactIterations": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5,
+          "default": 3,
+          "description": "Maximum number of REASON-ACT-OBSERVE iterations FORGE may execute internally before reporting. Only applicable when target is 'forge'. Default 3, max 5."
+        },
+        "skillsEnabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "When true, FORGE must read and apply EXACTLY the skills listed in instructions.requiredSkills (PUSH model — VIGIL/ULTRON decide the list). No auto-discovery. Active by default. Only applicable when target is 'forge'."
+        },
+        "requiredSkills": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": [],
+          "description": "Explicit list of skill file names (without path) that FORGE MUST read and apply, e.g. ['frontend-design', 'api-design', 'pdf-generation']. Pushed by VIGIL (full flow) or ULTRON (simple flow). Empty array = no skills apply. This is the SINGLE skill mechanism — Glob auto-discovery was removed. Only applicable when target is 'forge'."
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": { "target": { "const": "vigil" } }
+      },
+      "then": {
+        "properties": {
+          "chain": {
+            "properties": {
+              "vigilOutput": { "type": "null" },
+              "forgeOutput": { "type": "null" }
+            }
+          },
+          "instructions": {
+            "properties": {
+              "responseSchema": { "const": "response-vigil" }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "target": { "const": "forge" },
+          "mission": {
+            "properties": { "complexity": { "const": "simple" } }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "chain": {
+            "properties": {
+              "vigilOutput": { "type": ["string", "null"] },
+              "forgeOutput": { "type": "null" }
+            }
+          },
+          "instructions": {
+            "properties": {
+              "responseSchema": { "const": "response-forge" }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "target": { "const": "forge" },
+          "mission": {
+            "properties": {
+              "complexity": { "not": { "const": "simple" } }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "chain": {
+            "properties": {
+              "vigilOutput": { "type": "string", "minLength": 1 },
+              "forgeOutput": { "type": "null" }
+            }
+          },
+          "instructions": {
+            "properties": {
+              "responseSchema": { "const": "response-forge" }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "target": { "const": "aegis" },
+          "mission": {
+            "properties": { "complexity": { "const": "simple" } }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "chain": {
+            "properties": {
+              "vigilOutput": { "type": ["string", "null"] },
+              "forgeOutput": { "type": "string", "minLength": 1 }
+            }
+          },
+          "instructions": {
+            "properties": {
+              "responseSchema": { "const": "response-aegis" }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "target": { "const": "aegis" },
+          "mission": {
+            "properties": {
+              "complexity": { "not": { "const": "simple" } }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "chain": {
+            "properties": {
+              "vigilOutput": { "type": "string", "minLength": 1 },
+              "forgeOutput": { "type": "string", "minLength": 1 }
+            }
+          },
+          "instructions": {
+            "properties": {
+              "responseSchema": { "const": "response-aegis" }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": { "target": { "const": "pm" } }
+      },
+      "then": {
+        "properties": {
+          "chain": {
+            "properties": {
+              "vigilOutput": { "type": ["string", "null"] },
+              "forgeOutput": { "type": ["string", "null"] }
+            }
+          },
+          "instructions": {
+            "properties": {
+              "responseSchema": { "const": "response-pm" }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": { "target": { "const": "po" } }
+      },
+      "then": {
+        "properties": {
+          "chain": {
+            "properties": {
+              "vigilOutput": { "type": ["string", "null"] },
+              "forgeOutput": { "type": ["string", "null"] }
+            }
+          },
+          "instructions": {
+            "properties": {
+              "responseSchema": { "const": "response-po" }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": { "target": { "const": "sm" } }
+      },
+      "then": {
+        "properties": {
+          "chain": {
+            "properties": {
+              "vigilOutput": { "type": ["string", "null"] },
+              "forgeOutput": { "type": ["string", "null"] }
+            }
+          },
+          "instructions": {
+            "properties": {
+              "responseSchema": { "const": "response-sm" }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": { "target": { "const": "analyst" } }
+      },
+      "then": {
+        "properties": {
+          "chain": {
+            "properties": {
+              "vigilOutput": { "type": ["string", "null"] },
+              "forgeOutput": { "type": ["string", "null"] }
+            }
+          },
+          "instructions": {
+            "properties": {
+              "responseSchema": { "const": "response-analyst" }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": { "target": { "const": "link" } }
+      },
+      "then": {
+        "properties": {
+          "chain": {
+            "properties": {
+              "vigilOutput": { "type": ["string", "null"] },
+              "forgeOutput": { "type": ["string", "null"] }
+            }
+          },
+          "instructions": {
+            "properties": {
+              "responseSchema": { "const": "response-link" }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

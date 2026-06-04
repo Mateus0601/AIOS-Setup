@@ -1,0 +1,391 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Link Response Schema",
+  "description": "Schema for Link [Prospector] (Growth Squad) structured response back to ULTRON. Contains prospect lists, outreach drafts, pipeline reports, campaign plans, content drafts, contact cards, and email drafts.",
+  "type": "object",
+  "required": ["agent", "status", "summary", "artifacts", "issues", "metadata"],
+  "properties": {
+    "agent": {
+      "type": "string",
+      "const": "link",
+      "description": "Agent identifier — always 'link' for this response schema"
+    },
+    "status": {
+      "enum": ["success", "partial", "error"],
+      "description": "Overall status of Link's work. 'success' = mission completed fully, 'partial' = completed with caveats or missing data, 'error' = could not complete."
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 500,
+      "description": "1-2 sentence summary of what Link produced. Used by ULTRON for consolidation."
+    },
+    "artifacts": {
+      "type": "object",
+      "required": ["prospectList", "outreachDrafts", "pipelineReport", "campaignPlan", "contentDrafts", "contactCards", "emailDrafts", "sqliteOps"],
+      "description": "Concrete outputs produced by Link's growth and prospecting work",
+      "properties": {
+        "prospectList": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "platform"],
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Name of the prospect, community, or channel"
+              },
+              "platform": {
+                "type": "string",
+                "description": "Platform where this prospect/channel was found (e.g. 'reddit', 'linkedin', 'twitter', 'discord', 'slack')"
+              },
+              "profileUrl": {
+                "type": ["string", "null"],
+                "description": "URL to the prospect's profile or channel"
+              },
+              "estimatedSize": {
+                "type": ["string", "null"],
+                "description": "Estimated audience size (e.g. '45k members', '12k followers')"
+              },
+              "relevanceScore": {
+                "type": ["integer", "null"],
+                "minimum": 1,
+                "maximum": 10,
+                "description": "Relevance score 1-10 for this prospect/channel relative to the target audience"
+              },
+              "approachAngle": {
+                "type": ["string", "null"],
+                "description": "Suggested approach or angle for engaging this prospect/channel"
+              }
+            },
+            "additionalProperties": false
+          },
+          "description": "List of prospects, leads, or channels identified. Empty array if no prospects were found or mission type doesn't produce prospects."
+        },
+        "outreachDrafts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["target", "channel", "messageType", "content"],
+            "properties": {
+              "target": {
+                "type": "string",
+                "description": "Name or identifier of the target for this outreach message"
+              },
+              "channel": {
+                "type": "string",
+                "description": "Channel where this message would be sent (e.g. 'twitter-dm', 'linkedin-dm', 'reddit-comment', 'email')"
+              },
+              "messageType": {
+                "type": "string",
+                "description": "Type of message (e.g. 'first-touch', 'follow-up', 'comment', 'reply')"
+              },
+              "content": {
+                "type": "string",
+                "description": "The ready-to-use message content"
+              },
+              "approvalRequired": {
+                "type": "boolean",
+                "default": true,
+                "description": "Whether this draft requires explicit user approval before sending. Always true for email."
+              }
+            },
+            "additionalProperties": false
+          },
+          "description": "Outreach message drafts ready for review. Empty array if mission type doesn't produce outreach drafts."
+        },
+        "pipelineReport": {
+          "type": ["object", "null"],
+          "description": "Pipeline status report from SQLite. Null if mission type doesn't read pipeline.",
+          "properties": {
+            "totalProspects": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Total number of prospects in pipeline"
+            },
+            "byStatus": {
+              "type": "object",
+              "description": "Count of prospects per status",
+              "properties": {
+                "identified": { "type": "integer", "minimum": 0 },
+                "contacted": { "type": "integer", "minimum": 0 },
+                "responded": { "type": "integer", "minimum": 0 },
+                "joined": { "type": "integer", "minimum": 0 },
+                "churned": { "type": "integer", "minimum": 0 },
+                "rejected": { "type": "integer", "minimum": 0 }
+              },
+              "additionalProperties": false
+            },
+            "followUpsDue": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["prospectId", "name", "nextAction", "dueDate"],
+                "properties": {
+                  "prospectId": { "type": "integer" },
+                  "name": { "type": "string" },
+                  "nextAction": { "type": "string" },
+                  "dueDate": { "type": "string" }
+                },
+                "additionalProperties": false
+              },
+              "description": "Prospects with follow-up actions due"
+            },
+            "activeCampaigns": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "Names of currently active campaigns"
+            }
+          },
+          "additionalProperties": false
+        },
+        "campaignPlan": {
+          "type": ["object", "null"],
+          "description": "Campaign plan with daily actions. Null if mission type doesn't produce a campaign plan.",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "Campaign name"
+            },
+            "goal": {
+              "type": "string",
+              "description": "Campaign goal (e.g. '50 new leads in 30 days')"
+            },
+            "period": {
+              "type": "object",
+              "required": ["start", "end"],
+              "properties": {
+                "start": { "type": "string" },
+                "end": { "type": "string" }
+              },
+              "additionalProperties": false
+            },
+            "channels": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "Channels to be used in this campaign"
+            },
+            "dailyActions": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["date", "actions"],
+                "properties": {
+                  "date": { "type": "string" },
+                  "actions": {
+                    "type": "array",
+                    "items": { "type": "string" }
+                  }
+                },
+                "additionalProperties": false
+              },
+              "description": "Day-by-day action plan"
+            },
+            "weeklyMetrics": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["week", "target"],
+                "properties": {
+                  "week": { "type": "integer" },
+                  "target": { "type": "string" }
+                },
+                "additionalProperties": false
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "contentDrafts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["platform", "topic", "content"],
+            "properties": {
+              "platform": {
+                "type": "string",
+                "description": "Target platform (e.g. 'linkedin', 'twitter', 'reddit', 'dev.to')"
+              },
+              "topic": {
+                "type": "string",
+                "description": "Topic of the content piece"
+              },
+              "content": {
+                "type": "string",
+                "description": "Full content draft ready to publish"
+              },
+              "hook": {
+                "type": ["string", "null"],
+                "description": "The opening hook line (first sentence/tweet)"
+              },
+              "cta": {
+                "type": ["string", "null"],
+                "description": "Call-to-action at the end of the content"
+              }
+            },
+            "additionalProperties": false
+          },
+          "description": "Content drafts for build-in-public or attraction marketing. Empty array if mission type doesn't produce content."
+        },
+        "contactCards": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name"],
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Full name of the contact"
+              },
+              "email": {
+                "type": ["string", "null"],
+                "description": "Email address if found"
+              },
+              "platforms": {
+                "type": "array",
+                "items": { "type": "string" },
+                "description": "Platforms where this person is active"
+              },
+              "profileUrls": {
+                "type": "array",
+                "items": { "type": "string" },
+                "description": "Profile URLs across platforms"
+              },
+              "notes": {
+                "type": ["string", "null"],
+                "description": "Relevant notes about this contact"
+              }
+            },
+            "additionalProperties": false
+          },
+          "description": "Contact cards discovered via find-contacts mission. Empty array if mission type doesn't produce contact cards."
+        },
+        "emailDrafts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["prospectId", "to", "subject", "body", "gmailDraftId"],
+            "properties": {
+              "prospectId": {
+                "type": ["integer", "null"],
+                "description": "ID of the prospect in SQLite pipeline"
+              },
+              "to": {
+                "type": "string",
+                "description": "Recipient email address"
+              },
+              "subject": {
+                "type": "string",
+                "description": "Email subject line"
+              },
+              "body": {
+                "type": "string",
+                "description": "Full email body content"
+              },
+              "gmailDraftId": {
+                "type": ["string", "null"],
+                "description": "Gmail draft ID returned by mcp__claude_ai_Gmail__gmail_create_draft. Null if draft creation failed."
+              },
+              "approvalRequired": {
+                "type": "boolean",
+                "default": true,
+                "description": "Always true — email drafts always require approval before sending"
+              }
+            },
+            "additionalProperties": false
+          },
+          "description": "Email drafts created via Gmail MCP. Empty array if mission type doesn't produce email drafts."
+        },
+        "sqliteOps": {
+          "type": "object",
+          "required": ["prospectsAdded", "prospectsUpdated", "outreachLogged"],
+          "description": "Summary of SQLite operations performed",
+          "properties": {
+            "prospectsAdded": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Number of new prospects added to pipeline"
+            },
+            "prospectsUpdated": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Number of existing prospects updated"
+            },
+            "outreachLogged": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Number of outreach interactions logged"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "issues": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["severity", "description"],
+        "properties": {
+          "severity": {
+            "enum": ["warning", "error"],
+            "description": "Severity of the issue encountered"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of the issue"
+          },
+          "suggestion": {
+            "type": "string",
+            "description": "Suggested resolution or workaround"
+          }
+        },
+        "additionalProperties": false
+      },
+      "description": "Issues or blockers encountered during Link's work"
+    },
+    "metadata": {
+      "type": "object",
+      "required": ["missionType", "autoDecisions", "channelsFound", "leadsIdentified", "approvalRequired"],
+      "description": "Meta-information about Link's work process",
+      "properties": {
+        "missionType": {
+          "type": "string",
+          "enum": ["prospect-channels", "draft-outreach", "create-content", "monitor-signals", "track-pipeline", "campaign-plan", "find-contacts", "email-outreach", "other"],
+          "description": "Type of growth mission Link executed"
+        },
+        "autoDecisions": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of autonomous decisions made (documented as [AUTO-DECISION] in free text)"
+        },
+        "channelsFound": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of channels or prospect sources identified"
+        },
+        "leadsIdentified": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of individual leads identified or added to pipeline"
+        },
+        "approvalRequired": {
+          "type": "boolean",
+          "description": "Whether this response contains items that require user approval before action (emails, posts)"
+        },
+        "freeText": {
+          "type": "string",
+          "description": "Optional free-text field for additional unstructured context (Phase 1 hybrid mode)"
+        },
+        "position": {
+          "type": ["string", "null"],
+          "default": null,
+          "description": "Agent's position in Deliberative Group Chat. Format: 'agree_with:{agent}', 'disagree', or 'propose:{alternative}'. Null when not participating in a group chat round."
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

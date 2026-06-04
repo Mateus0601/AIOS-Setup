@@ -1,0 +1,200 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SM Response Schema",
+  "description": "Schema for SM [Scrum Master] (River) structured response back to ULTRON. Contains story files, acceptance criteria, sprint plans, and impediment tracking.",
+  "type": "object",
+  "required": ["agent", "status", "summary", "artifacts", "issues", "metadata"],
+  "properties": {
+    "agent": {
+      "type": "string",
+      "const": "sm",
+      "description": "Agent identifier — always 'sm' for this response schema"
+    },
+    "status": {
+      "enum": ["success", "partial", "error"],
+      "description": "Overall status of the SM's work. 'success' = mission completed fully, 'partial' = completed with caveats, 'error' = could not complete."
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 500,
+      "description": "1-2 sentence summary of what the SM produced. Used by ULTRON for consolidation."
+    },
+    "artifacts": {
+      "type": "object",
+      "required": ["storyFile", "storyTaskCount", "acceptanceCriteria", "sprintPlan", "impediments"],
+      "description": "Concrete outputs produced by the SM's process facilitation work",
+      "properties": {
+        "storyFile": {
+          "type": ["string", "null"],
+          "description": "Path of the story file created or updated (e.g. '~/.claude/aios/stories/story-20260220T100000.md'), null if no story file was generated"
+        },
+        "storyTaskCount": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of tasks defined in the story file. 0 if no story was created."
+        },
+        "acceptanceCriteria": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "description", "testable"],
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Acceptance criteria identifier (e.g. 'AC1', 'AC2')"
+              },
+              "description": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Human-readable description of the acceptance criteria"
+              },
+              "testable": {
+                "type": "boolean",
+                "description": "Whether this acceptance criteria can be objectively verified"
+              }
+            },
+            "additionalProperties": false
+          },
+          "description": "Acceptance criteria defined for the story or feature. Empty array if no AC were defined."
+        },
+        "sprintPlan": {
+          "type": ["object", "null"],
+          "description": "Sprint plan if sprint planning was part of the mission. Null otherwise.",
+          "properties": {
+            "sprintId": {
+              "type": "string",
+              "description": "Unique identifier for the sprint (e.g. 'sprint-2026-w08')"
+            },
+            "goals": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "Sprint goals describing what this sprint aims to achieve"
+            },
+            "capacity": {
+              "type": "string",
+              "description": "Available capacity for the sprint (e.g. '3 stories, ~15 tasks')"
+            },
+            "tasks": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["taskId", "storyId", "effort"],
+                "properties": {
+                  "taskId": {
+                    "type": "string",
+                    "description": "Task identifier"
+                  },
+                  "storyId": {
+                    "type": "string",
+                    "description": "Parent story identifier"
+                  },
+                  "effort": {
+                    "type": "string",
+                    "enum": ["P", "M", "G"],
+                    "description": "Effort estimation for this task"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "description": "Tasks allocated to this sprint"
+            }
+          },
+          "additionalProperties": false
+        },
+        "impediments": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "description", "severity", "suggestedResolution"],
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Impediment identifier (e.g. 'IMP-001')"
+              },
+              "description": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Description of the impediment"
+              },
+              "severity": {
+                "enum": ["critical", "high", "medium", "low"],
+                "description": "Severity level determining escalation path"
+              },
+              "suggestedResolution": {
+                "type": "string",
+                "description": "Suggested approach to resolve the impediment"
+              }
+            },
+            "additionalProperties": false
+          },
+          "description": "Impediments identified during the SM's work. Empty array if no impediments found."
+        }
+      },
+      "additionalProperties": false
+    },
+    "issues": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["severity", "description"],
+        "properties": {
+          "severity": {
+            "enum": ["warning", "error"],
+            "description": "Severity of the issue encountered"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of the issue"
+          },
+          "suggestion": {
+            "type": "string",
+            "description": "Suggested resolution or workaround"
+          }
+        },
+        "additionalProperties": false
+      },
+      "description": "Issues or blockers encountered during the SM's work"
+    },
+    "metadata": {
+      "type": "object",
+      "required": ["missionType", "autoDecisions", "storiesCreated", "tasksCreated"],
+      "description": "Meta-information about the SM's work process",
+      "properties": {
+        "missionType": {
+          "type": "string",
+          "enum": ["create-story", "expand-story", "break-epic", "track-impediments", "execute-checklist", "sprint-plan", "correct-course", "retrospective", "other"],
+          "description": "Type of mission the SM executed, derived from mission.description analysis"
+        },
+        "autoDecisions": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of autonomous decisions made (documented as [AUTO-DECISION] in free text)"
+        },
+        "storiesCreated": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of stories created during this mission"
+        },
+        "tasksCreated": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of tasks created across all stories during this mission"
+        },
+        "freeText": {
+          "type": "string",
+          "description": "Optional free-text field for additional unstructured context (Phase 1 hybrid mode)"
+        },
+        "position": {
+          "type": ["string", "null"],
+          "default": null,
+          "description": "Agent's position in Deliberative Group Chat. Format: 'agree_with:{agent}', 'disagree', or 'propose:{alternative}'. Null when not participating in a group chat round."
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

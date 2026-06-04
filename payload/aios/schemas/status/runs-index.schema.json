@@ -1,0 +1,58 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AIOS Runs Index Schema",
+  "description": "Schema for the root status.json WHEN the engine is in multi-run mode (parallelism Fase A). In this mode the root status.json is a LIGHTWEIGHT INDEX of active runs, not the full state. The full per-run state (13 legacy fields, schema aios-status-v1) lives in runs/{runId}/status.json and is validated by status.schema.json. Backward compatibility: if runs/ does not exist, status.json keeps the legacy aios-status-v1 shape and status.schema.json applies instead. The aios-validate hook (handoff_engine.py _validate_status_basic) accepts BOTH schema strings on the root file.",
+  "type": "object",
+  "required": ["schema", "activeRuns"],
+  "properties": {
+    "schema": {
+      "type": "string",
+      "const": "aios-runs-index-v1",
+      "tier": 1,
+      "description": "Schema version identifier for the multi-run index"
+    },
+    "activeRuns": {
+      "type": "array",
+      "tier": 1,
+      "description": "List of currently active runs. Each entry is a run descriptor.",
+      "items": {
+        "type": "object",
+        "required": ["runId"],
+        "properties": {
+          "runId": {
+            "type": "string",
+            "pattern": "^run-[a-z0-9-]+-\\d{8}T\\d{6}$",
+            "description": "Deterministic run id: run-{project}-{YYYYMMDDTHHmmss}"
+          },
+          "project": {
+            "type": ["string", "null"],
+            "description": "Project the run belongs to"
+          },
+          "startedAt": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}",
+            "description": "ISO8601 timestamp the run was registered"
+          },
+          "mission": {
+            "type": "string",
+            "description": "Optional mission id/description"
+          },
+          "complexity": {
+            "enum": ["simple", "medium", "complex"],
+            "description": "Optional complexity classification"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "lastUpdate": {
+      "oneOf": [
+        { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}" },
+        { "type": "null" }
+      ],
+      "tier": 2,
+      "description": "ISO8601 timestamp of the last index update"
+    }
+  },
+  "additionalProperties": false
+}

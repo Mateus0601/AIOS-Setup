@@ -1,0 +1,208 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PO Response Schema",
+  "description": "Schema for PO [Product Owner] (Pax) structured response back to ULTRON. Contains backlog items, validation results, prioritized tasks, and epic coherence reports.",
+  "type": "object",
+  "required": ["agent", "status", "summary", "artifacts", "issues", "metadata"],
+  "properties": {
+    "agent": {
+      "type": "string",
+      "const": "po",
+      "description": "Agent identifier — always 'po' for this response schema"
+    },
+    "status": {
+      "enum": ["success", "partial", "error"],
+      "description": "Overall status of the PO's work. 'success' = mission completed fully, 'partial' = completed with caveats, 'error' = could not complete."
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 500,
+      "description": "1-2 sentence summary of what the PO produced. Used by ULTRON for consolidation."
+    },
+    "artifacts": {
+      "type": "object",
+      "required": ["backlogItems", "validationResult", "prioritizedTasks", "epicCoherence"],
+      "description": "Concrete outputs produced by the PO's backlog and requirements work",
+      "properties": {
+        "backlogItems": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "title", "priority", "estimatedEffort", "acceptanceCriteria"],
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Unique backlog item identifier (e.g. 'BLI-001')"
+              },
+              "title": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Descriptive title of the backlog item"
+              },
+              "priority": {
+                "enum": ["baixa", "media", "alta", "critica"],
+                "description": "Priority level of this backlog item"
+              },
+              "estimatedEffort": {
+                "type": "string",
+                "enum": ["P", "M", "G", "XG"],
+                "description": "T-shirt size effort estimation: P(pequena), M(media), G(grande), XG(extra grande)"
+              },
+              "acceptanceCriteria": {
+                "type": "array",
+                "items": { "type": "string" },
+                "minItems": 1,
+                "description": "List of testable acceptance criteria for this backlog item"
+              }
+            },
+            "additionalProperties": false
+          },
+          "description": "Backlog items created or reviewed during the mission. Empty array if no backlog items were produced."
+        },
+        "validationResult": {
+          "type": ["object", "null"],
+          "description": "Result of story/requirement validation. Null if validation was not part of the mission.",
+          "properties": {
+            "storyId": {
+              "type": "string",
+              "description": "ID of the story or artifact that was validated"
+            },
+            "verdict": {
+              "enum": ["approved", "needs_revision", "rejected"],
+              "description": "Validation verdict: approved (ready for implementation), needs_revision (fixable issues), rejected (fundamental problems)"
+            },
+            "issues": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["description", "severity"],
+                "properties": {
+                  "description": {
+                    "type": "string",
+                    "description": "Description of the validation issue"
+                  },
+                  "severity": {
+                    "enum": ["critical", "major", "minor"],
+                    "description": "Severity of the issue"
+                  },
+                  "suggestion": {
+                    "type": "string",
+                    "description": "Suggested fix for the issue"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "description": "Issues found during validation"
+            }
+          },
+          "additionalProperties": false
+        },
+        "prioritizedTasks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["taskId", "rank", "justification"],
+            "properties": {
+              "taskId": {
+                "type": "string",
+                "description": "ID of the task or backlog item being prioritized"
+              },
+              "rank": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "Priority rank (1 = highest priority)"
+              },
+              "justification": {
+                "type": "string",
+                "description": "Why this item was given this priority rank"
+              }
+            },
+            "additionalProperties": false
+          },
+          "description": "Tasks or backlog items ordered by priority with justification for each ranking"
+        },
+        "epicCoherence": {
+          "type": ["object", "null"],
+          "description": "Epic coherence analysis result. Null if epic coherence check was not part of the mission.",
+          "properties": {
+            "epicId": {
+              "type": "string",
+              "description": "ID of the epic being analyzed for coherence"
+            },
+            "coherenceScore": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "description": "Coherence score from 0.0 (completely incoherent) to 1.0 (perfectly coherent)"
+            },
+            "misalignments": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "List of identified misalignments between stories and the epic context"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "issues": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["severity", "description"],
+        "properties": {
+          "severity": {
+            "enum": ["warning", "error"],
+            "description": "Severity of the issue encountered"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of the issue"
+          },
+          "suggestion": {
+            "type": "string",
+            "description": "Suggested resolution or workaround"
+          }
+        },
+        "additionalProperties": false
+      },
+      "description": "Issues or blockers encountered during the PO's work"
+    },
+    "metadata": {
+      "type": "object",
+      "required": ["missionType", "autoDecisions", "storiesValidated"],
+      "description": "Meta-information about the PO's work process",
+      "properties": {
+        "missionType": {
+          "type": "string",
+          "enum": ["validate-story", "backlog-review", "backlog-add", "epic-context", "define-acceptance-criteria", "prioritize", "review-completion", "refine-requirements", "other"],
+          "description": "Type of mission the PO executed, derived from mission.description analysis"
+        },
+        "autoDecisions": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of autonomous decisions made (documented as [AUTO-DECISION] in free text)"
+        },
+        "storiesValidated": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of stories validated during this mission"
+        },
+        "freeText": {
+          "type": "string",
+          "description": "Optional free-text field for additional unstructured context (Phase 1 hybrid mode)"
+        },
+        "position": {
+          "type": ["string", "null"],
+          "default": null,
+          "description": "Agent's position in Deliberative Group Chat. Format: 'agree_with:{agent}', 'disagree', or 'propose:{alternative}'. Null when not participating in a group chat round."
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,59 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Task Entry Schema",
+  "type": "object",
+  "required": ["id", "task", "assignedBy", "assignedTo", "status", "timestamp", "project"],
+  "properties": {
+    "id": {
+      "type": "integer",
+      "minimum": 1,
+      "tier": 1,
+      "description": "Unique task identifier"
+    },
+    "task": {
+      "type": "string",
+      "minLength": 1,
+      "tier": 1,
+      "description": "Task description"
+    },
+    "assignedBy": {
+      "$ref": "../common/enums.json#/definitions/agentEnumLegacy",
+      "tier": 1,
+      "description": "Agent that assigned the task"
+    },
+    "assignedTo": {
+      "$ref": "../common/enums.json#/definitions/agentEnumLegacy",
+      "tier": 1,
+      "description": "Agent assigned to the task"
+    },
+    "status": {
+      "$ref": "../common/enums.json#/definitions/statusEnum",
+      "tier": 1,
+      "description": "Current task status"
+    },
+    "timestamp": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}",
+      "tier": 1,
+      "description": "ISO8601 timestamp when task was created"
+    },
+    "project": {
+      "type": "string",
+      "minLength": 1,
+      "tier": 1,
+      "description": "Project name"
+    },
+    "priority": {
+      "$ref": "../common/enums.json#/definitions/priorityEnum",
+      "tier": 3,
+      "description": "Task priority level"
+    },
+    "completedAt": {
+      "type": ["string", "null"],
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}",
+      "tier": 3,
+      "description": "ISO8601 timestamp when task was completed"
+    }
+  },
+  "additionalProperties": false
+}

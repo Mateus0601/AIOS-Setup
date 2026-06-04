@@ -1,0 +1,205 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AEGIS Response Schema",
+  "description": "Schema for AEGIS [Reviewer] structured response back to ULTRON. Contains review verdict, categorized findings (critical/important/minor), and verification of VIGIL decisions and story tasks.",
+  "type": "object",
+  "required": ["agent", "status", "summary", "artifacts", "issues", "metadata"],
+  "properties": {
+    "agent": {
+      "type": "string",
+      "const": "aegis",
+      "description": "Agent identifier — always 'aegis' for this response schema"
+    },
+    "status": {
+      "enum": ["success", "partial", "error"],
+      "description": "Overall status of the review. 'success' = review completed fully, 'partial' = partial review, 'error' = could not review."
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 500,
+      "description": "1-2 sentence summary of the review verdict. Used by ULTRON for consolidation."
+    },
+    "artifacts": {
+      "type": "object",
+      "required": ["verdict", "critical", "important", "minor", "vigilDecisionsRespected", "tasksVerified"],
+      "description": "Concrete review findings organized by severity and verification checks",
+      "properties": {
+        "verdict": {
+          "enum": ["approved", "approved_with_issues", "rejected"],
+          "description": "Overall verdict: 'approved' = ship it, 'approved_with_issues' = ship with noted concerns, 'rejected' = must fix before proceeding (veto power)"
+        },
+        "critical": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["description", "location", "suggestion"],
+            "properties": {
+              "description": {
+                "type": "string",
+                "description": "Description of the critical issue (bugs, security flaws, data loss risks)"
+              },
+              "location": {
+                "type": "string",
+                "description": "File path, function, or area where the issue was found"
+              },
+              "suggestion": {
+                "type": "string",
+                "description": "Suggested fix for the critical issue"
+              }
+            },
+            "additionalProperties": false
+          },
+          "description": "Critical issues that block approval (triggers 'rejected' verdict)"
+        },
+        "important": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["description", "location", "suggestion"],
+            "properties": {
+              "description": {
+                "type": "string",
+                "description": "Description of the important issue"
+              },
+              "location": {
+                "type": "string",
+                "description": "File path, function, or area where the issue was found"
+              },
+              "suggestion": {
+                "type": "string",
+                "description": "Suggested improvement"
+              }
+            },
+            "additionalProperties": false
+          },
+          "description": "Important issues that should be addressed (triggers 'approved_with_issues')"
+        },
+        "minor": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["description", "location", "suggestion"],
+            "properties": {
+              "description": {
+                "type": "string",
+                "description": "Description of the minor issue"
+              },
+              "location": {
+                "type": "string",
+                "description": "File path, function, or area"
+              },
+              "suggestion": {
+                "type": "string",
+                "description": "Optional improvement suggestion"
+              }
+            },
+            "additionalProperties": false
+          },
+          "description": "Minor issues — style, naming, non-blocking suggestions"
+        },
+        "vigilDecisionsRespected": {
+          "type": "object",
+          "required": ["total", "respected", "violated"],
+          "properties": {
+            "total": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Total number of VIGIL strategic decisions that were verified"
+            },
+            "respected": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Number of decisions correctly implemented by FORGE"
+            },
+            "violated": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Number of decisions not respected or contradicted by the implementation"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Verification of whether FORGE respected VIGIL's strategic decisions"
+        },
+        "tasksVerified": {
+          "type": "object",
+          "required": ["total", "verified", "mismatched"],
+          "properties": {
+            "total": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Total tasks marked as completed in the story file"
+            },
+            "verified": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Tasks whose completion was verified against actual output"
+            },
+            "mismatched": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Tasks marked complete but whose output does not match expectations"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Cross-reference of story file task checkboxes vs actual implementation output"
+        }
+      },
+      "additionalProperties": false
+    },
+    "issues": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["severity", "description"],
+        "properties": {
+          "severity": {
+            "enum": ["warning", "error"],
+            "description": "Severity of the issue"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of the issue"
+          },
+          "suggestion": {
+            "type": "string",
+            "description": "Suggested resolution"
+          }
+        },
+        "additionalProperties": false
+      },
+      "description": "Meta-issues about the review process itself (e.g. could not access certain files)"
+    },
+    "metadata": {
+      "type": "object",
+      "required": ["reviewDepth", "storyFileChecked"],
+      "description": "Meta-information about the review process",
+      "properties": {
+        "reviewDepth": {
+          "enum": ["full", "quick"],
+          "description": "Whether a full or quick review was performed"
+        },
+        "storyFileChecked": {
+          "type": "boolean",
+          "description": "Whether the story file was used to cross-reference task completion"
+        },
+        "freeText": {
+          "type": "string",
+          "description": "Optional free-text field for additional unstructured context (Phase 1 hybrid mode)"
+        },
+        "position": {
+          "type": ["string", "null"],
+          "default": null,
+          "description": "Agent's position in Deliberative Group Chat. Format: 'agree_with:{agent}', 'disagree', or 'propose:{alternative}'. Null when not participating in a group chat round."
+        },
+        "vaultConsulted": {
+          "type": "boolean",
+          "default": false,
+          "description": "Confirmation of the MANDATORY step-0 Vault consultation. True = AEGIS consulted the Vault paths in context.vaultPaths (or attempted and found them empty) BEFORE reviewing. False/absent = not consulted (only acceptable for a new project with an empty Vault). Optional for backward compatibility, but AEGIS MUST set it true on every mission."
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

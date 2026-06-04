@@ -1,0 +1,173 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PM Response Schema",
+  "description": "Schema for PM [Product Manager] (Morgan) structured response back to ULTRON. Contains PRD references, strategic decisions, roadmap items, delegations, and market insights.",
+  "type": "object",
+  "required": ["agent", "status", "summary", "artifacts", "issues", "metadata"],
+  "properties": {
+    "agent": {
+      "type": "string",
+      "const": "pm",
+      "description": "Agent identifier — always 'pm' for this response schema"
+    },
+    "status": {
+      "enum": ["success", "partial", "error"],
+      "description": "Overall status of the PM's work. 'success' = mission completed fully, 'partial' = completed with caveats, 'error' = could not complete."
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 500,
+      "description": "1-2 sentence summary of what the PM produced. Used by ULTRON for consolidation."
+    },
+    "artifacts": {
+      "type": "object",
+      "required": ["prdPath", "roadmapItems", "strategicDecisions", "delegations", "marketInsights"],
+      "description": "Concrete outputs produced by the PM's product work",
+      "properties": {
+        "prdPath": {
+          "type": ["string", "null"],
+          "description": "Path of the PRD file created (e.g. '~/.claude/aios/docs/PRD-feature-x.md'), null if no PRD was generated"
+        },
+        "roadmapItems": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["title", "priority", "timeframe"],
+            "properties": {
+              "title": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Title of the roadmap item or phase"
+              },
+              "priority": {
+                "enum": ["baixa", "media", "alta", "critica"],
+                "description": "Priority level of this roadmap item"
+              },
+              "timeframe": {
+                "type": "string",
+                "description": "Estimated timeframe for this item (e.g. '2 semanas', 'Q2 2026', 'Sprint 3')"
+              }
+            },
+            "additionalProperties": false
+          },
+          "description": "Roadmap items with priority and estimated timeframe. Empty array if no roadmap was produced."
+        },
+        "strategicDecisions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["topic", "decision", "justification", "alternatives"],
+            "properties": {
+              "topic": {
+                "type": "string",
+                "description": "What decision topic was evaluated"
+              },
+              "decision": {
+                "type": "string",
+                "description": "The chosen approach/decision"
+              },
+              "justification": {
+                "type": "string",
+                "description": "Why this approach was chosen over alternatives"
+              },
+              "alternatives": {
+                "type": "array",
+                "items": { "type": "string" },
+                "description": "Alternative approaches that were considered and rejected"
+              }
+            },
+            "additionalProperties": false
+          },
+          "description": "Strategic product decisions made during the mission"
+        },
+        "delegations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["targetAgent", "task", "context"],
+            "properties": {
+              "targetAgent": {
+                "enum": ["analyst", "po", "sm"],
+                "description": "Target agent within the Product Squad to delegate to"
+              },
+              "task": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Description of the task to delegate"
+              },
+              "context": {
+                "type": "string",
+                "description": "Context and justification for why this delegation is needed"
+              }
+            },
+            "additionalProperties": false
+          },
+          "description": "Suggested delegations to other Product Squad agents. ULTRON decides if and how to execute these."
+        },
+        "marketInsights": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Relevant market insights, competitive intelligence, or data points gathered during the mission"
+        }
+      },
+      "additionalProperties": false
+    },
+    "issues": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["severity", "description"],
+        "properties": {
+          "severity": {
+            "enum": ["warning", "error"],
+            "description": "Severity of the issue encountered"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of the issue"
+          },
+          "suggestion": {
+            "type": "string",
+            "description": "Suggested resolution or workaround"
+          }
+        },
+        "additionalProperties": false
+      },
+      "description": "Issues or blockers encountered during the PM's work"
+    },
+    "metadata": {
+      "type": "object",
+      "required": ["missionType", "autoDecisions", "delegationsRequested"],
+      "description": "Meta-information about the PM's work process",
+      "properties": {
+        "missionType": {
+          "type": "string",
+          "enum": ["create-prd", "create-brownfield-prd", "define-roadmap", "strategic-decision", "delegate-research", "review-backlog", "product-vision", "other"],
+          "description": "Type of mission the PM executed, derived from mission.description analysis"
+        },
+        "autoDecisions": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of autonomous decisions made (documented as [AUTO-DECISION] in free text)"
+        },
+        "delegationsRequested": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of delegations suggested to other Product Squad agents"
+        },
+        "freeText": {
+          "type": "string",
+          "description": "Optional free-text field for additional unstructured context (Phase 1 hybrid mode)"
+        },
+        "position": {
+          "type": ["string", "null"],
+          "default": null,
+          "description": "Agent's position in Deliberative Group Chat. Format: 'agree_with:{agent}', 'disagree', or 'propose:{alternative}'. Null when not participating in a group chat round."
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

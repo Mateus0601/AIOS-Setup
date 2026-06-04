@@ -1,0 +1,276 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "aios-checkpoint-v1",
+  "title": "AIOS Checkpoint",
+  "description": "Schema for an individual project checkpoint in AIOS",
+  "type": "object",
+  "required": ["schema", "project", "projectPath", "savedAt", "workStack", "nextAction"],
+  "additionalProperties": false,
+  "properties": {
+
+    "schema": {
+      "const": "aios-checkpoint-v1",
+      "description": "Schema version identifier"
+    },
+
+    "project": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Project name"
+    },
+
+    "projectPath": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Absolute path of the project directory"
+    },
+
+    "savedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO8601 timestamp of when the checkpoint was saved"
+    },
+
+    "sessionStart": {
+      "oneOf": [
+        { "type": "string", "format": "date-time" },
+        { "type": "null" }
+      ],
+      "description": "Timestamp marking the start of the work session"
+    },
+
+    "cycleCount": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Number of cycles completed in this session"
+    },
+
+    "status": {
+      "type": "string",
+      "enum": ["paused", "active", "completed", "crashed"],
+      "description": "Current state of the checkpoint"
+    },
+
+    "workStack": {
+      "type": "object",
+      "description": "Current work stack — story, task and subtask in progress",
+      "additionalProperties": false,
+      "properties": {
+        "story": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "id": { "type": "string" },
+                "title": { "type": "string" },
+                "description": { "type": "string" }
+              }
+            },
+            { "type": "null" }
+          ],
+          "description": "Story or epic in progress (null if none)"
+        },
+        "task": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "id": { "type": "integer" },
+                "title": { "type": "string" },
+                "assignedTo": {
+                  "$ref": "../common/enums.json#/definitions/agentOrSystemEnum"
+                },
+                "priority": {
+                  "type": "string",
+                  "enum": ["baixa", "media", "alta", "critica"]
+                }
+              }
+            },
+            { "type": "null" }
+          ],
+          "description": "Main task in progress (null if none)"
+        },
+        "subtask": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "id": { "type": "string" },
+                "title": { "type": "string" },
+                "description": { "type": "string" }
+              }
+            },
+            { "type": "null" }
+          ],
+          "description": "Subtask in progress, if any"
+        }
+      }
+    },
+
+    "nextAction": {
+      "type": "object",
+      "description": "Next action to be executed when work resumes",
+      "required": ["description", "assignedTo"],
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Detailed description of the next action"
+        },
+        "assignedTo": {
+          "$ref": "../common/enums.json#/definitions/agentOrSystemEnum",
+          "description": "Agent responsible for the next action"
+        },
+        "dependsOn": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "IDs of actions or tasks this one depends on"
+        },
+        "estimatedComplexity": {
+          "type": "string",
+          "enum": ["baixa", "media", "alta"],
+          "description": "Estimated complexity of the next action"
+        }
+      }
+    },
+
+    "modifiedFiles": {
+      "type": "array",
+      "description": "All files created or modified in this work cycle",
+      "items": {
+        "type": "object",
+        "required": ["path", "state"],
+        "additionalProperties": false,
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Absolute path of the file"
+          },
+          "state": {
+            "type": "string",
+            "enum": ["created", "modified", "deleted", "pending_creation", "pending_modification"],
+            "description": "File state"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of the changes made to the file"
+          }
+        }
+      }
+    },
+
+    "agentContext": {
+      "type": "object",
+      "description": "Agent context — who was active, who was spawned, pending debates",
+      "additionalProperties": false,
+      "properties": {
+        "lastActiveAgent": {
+          "$ref": "../common/enums.json#/definitions/agentOrSystemEnum",
+          "description": "Last agent that was active when the checkpoint was saved"
+        },
+        "agentsSpawnedThisCycle": {
+          "type": "array",
+          "items": {
+            "$ref": "../common/enums.json#/definitions/agentOrSystemEnum"
+          },
+          "description": "Agents spawned in this work cycle"
+        },
+        "pendingAgents": {
+          "type": "array",
+          "items": {
+            "$ref": "../common/enums.json#/definitions/agentOrSystemEnum"
+          },
+          "description": "Agents that still need to be invoked"
+        },
+        "pendingDebates": {
+          "type": "array",
+          "description": "Inter-agent debates that were in progress",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "topic": { "type": "string" },
+              "status": { "type": "string" },
+              "vigil": {
+                "oneOf": [
+                  { "type": "string" },
+                  { "type": "null" }
+                ]
+              },
+              "forge": {
+                "oneOf": [
+                  { "type": "string" },
+                  { "type": "null" }
+                ]
+              },
+              "aegis": {
+                "oneOf": [
+                  { "type": "string" },
+                  { "type": "null" }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "pendingDecisions": {
+      "type": "array",
+      "description": "Unresolved technical decisions that block progress",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string" },
+          "topic": { "type": "string" },
+          "options": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "blockedBy": { "type": "string" }
+        }
+      }
+    },
+
+    "activityLogSnapshot": {
+      "type": "object",
+      "description": "Snapshot of max IDs from the activity-log at save time — used to detect drift",
+      "additionalProperties": false,
+      "properties": {
+        "lastActivityId": { "type": "integer" },
+        "lastDiscussionId": { "type": "integer" },
+        "lastDecisionId": { "type": "integer" },
+        "lastTaskId": { "type": "integer" }
+      }
+    },
+
+    "crashIndicator": {
+      "type": "object",
+      "description": "Session health indicators — detects crashes and abnormal terminations",
+      "additionalProperties": false,
+      "properties": {
+        "sessionEndedNormally": {
+          "type": "boolean",
+          "description": "false until ULTRON confirms a normal shutdown; used to detect crashes"
+        },
+        "statusAtPause": {
+          "type": "string",
+          "enum": ["paused", "active", "completed", "crashed"],
+          "description": "Checkpoint status at the moment of the pause"
+        },
+        "phaseAtPause": {
+          "type": "string",
+          "enum": ["idle", "analysis", "strategy", "execution", "review", "checkpoint"],
+          "description": "status.json phase at the moment of the pause"
+        }
+      }
+    }
+
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "plan": "max",
+  "sessionLimit": 200000,
+  "weeklyLimit": 5000000,
+  "lastUpdated": "2026-02-11",
+  "knownPlans": {
+    "free": {
+      "sessionLimit": 50000,
+      "weeklyLimit": 500000
+    },
+    "pro": {
+      "sessionLimit": 100000,
+      "weeklyLimit": 2500000
+    },
+    "max": {
+      "sessionLimit": 200000,
+      "weeklyLimit": 5000000
+    }
+  }
+}

@@ -1,0 +1,117 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AIOS Status Schema",
+  "description": "Schema for an AIOS run-state snapshot (schema 'aios-status-v1'). Applies to: (1) the legacy root status.json in single-run mode, and (2) runs/{runId}/status.json in multi-run mode (parallelism Fase A) — the per-run state has the SAME 13-field shape, just namespaced under a run-dir. In multi-run mode the ROOT status.json instead becomes a lightweight index validated by runs-index.schema.json (schema 'aios-runs-index-v1'). Consumed live by /continue (Nivel 2 crash detection) and checkpoint-protocol (project/phase/activeTask/activeAgent + recovery fields: activeStoryFile, modifiedFiles, recoveryHint, lastActivityIds, lastUpdate). The state_graph/handoff-migration fields (graphInstanceId, handoffPhase, handoffFailures) were removed in M3 (motor leve): no live reader after state_graph.json was deprecated in P2.",
+  "type": "object",
+  "required": ["schema", "activeAgent", "activeTask", "project", "phase", "sessionStart", "taskStart", "lastUpdate", "cycleCount", "agentsSpawned"],
+  "properties": {
+    "schema": {
+      "type": "string",
+      "const": "aios-status-v1",
+      "tier": 1,
+      "description": "Schema version identifier"
+    },
+    "activeAgent": {
+      "oneOf": [
+        { "$ref": "../common/enums.json#/definitions/agentOrSystemEnum" },
+        { "type": "null" }
+      ],
+      "tier": 1,
+      "description": "Currently active agent, null when idle"
+    },
+    "activeTask": {
+      "type": ["string", "null"],
+      "tier": 1,
+      "description": "Description of the currently active task, null when idle"
+    },
+    "project": {
+      "type": ["string", "null"],
+      "tier": 1,
+      "description": "Name of the current project, null when idle"
+    },
+    "phase": {
+      "enum": ["idle", "analysis", "strategy", "execution", "review", "checkpoint"],
+      "tier": 1,
+      "description": "Current phase of the AIOS workflow cycle"
+    },
+    "sessionStart": {
+      "oneOf": [
+        { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}" },
+        { "type": "null" }
+      ],
+      "tier": 2,
+      "description": "ISO8601 timestamp when the current session started, null when idle"
+    },
+    "taskStart": {
+      "oneOf": [
+        { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}" },
+        { "type": "null" }
+      ],
+      "tier": 2,
+      "description": "ISO8601 timestamp when the current task started, null when idle"
+    },
+    "lastUpdate": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}",
+      "tier": 1,
+      "description": "ISO8601 timestamp of the last status update"
+    },
+    "cycleCount": {
+      "type": "integer",
+      "minimum": 0,
+      "tier": 2,
+      "description": "Number of AIOS cycles completed in the current session"
+    },
+    "agentsSpawned": {
+      "type": "array",
+      "tier": 2,
+      "description": "List of agents spawned in the current task cycle",
+      "items": {
+        "$ref": "../common/enums.json#/definitions/agentOrSystemEnum"
+      }
+    },
+    "activeStoryFile": {
+      "oneOf": [{"type": "string"}, {"type": "null"}],
+      "tier": 2,
+      "description": "Active story file name (e.g. story-20260218T170000.md), null when no story file exists"
+    },
+    "lastActivityIds": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "activities": {"type": "integer", "minimum": 0},
+            "tasks": {"type": "integer", "minimum": 0},
+            "discussions": {"type": "integer", "minimum": 0},
+            "decisions": {"type": "integer", "minimum": 0}
+          },
+          "required": ["activities", "tasks", "discussions", "decisions"]
+        },
+        {"type": "null"}
+      ],
+      "tier": 2,
+      "description": "Snapshot of max IDs from activity-log.json at last status update"
+    },
+    "modifiedFiles": {
+      "type": "array",
+      "items": {"type": "string"},
+      "tier": 2,
+      "description": "List of file paths modified during the current task cycle"
+    },
+    "recoveryHint": {
+      "oneOf": [{"type": "string"}, {"type": "null"}],
+      "tier": 2,
+      "description": "Brief description of next action, used for crash recovery context"
+    },
+    "missionComplexity": {
+      "oneOf": [
+        { "enum": ["simple", "medium", "complex"] },
+        { "type": "null" }
+      ],
+      "default": null,
+      "tier": 1,
+      "description": "Complexity classification of the current mission, determined by ULTRON during analysis phase. 'simple' = FORGE+AEGIS only (no VIGIL), 'medium' = full standard cycle, 'complex' = full cycle + Deliberative Group Chat. Null when idle or not yet classified."
+    }
+  },
+  "additionalProperties": false
+}

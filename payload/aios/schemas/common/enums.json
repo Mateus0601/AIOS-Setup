@@ -1,0 +1,32 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "aios://schemas/common/enums.json",
+  "title": "AIOS Common Enums — SINGLE SOURCE OF TRUTH",
+  "description": "Single source of truth for the AIOS agent/status/priority enums. The status, handoff, and activity-log schemas reference these definitions via $ref instead of duplicating lists. Do NOT duplicate agent enums in another file — edit here.",
+  "definitions": {
+    "agentEnum": {
+      "$comment": "CANONICAL STRICT. The 10 AIOS agent IDs (3 squads + independent). NO phantom aliases. Use in new/clean schemas (status, handoff). Legacy aliases (orchestrator/strategist/executor/reviewer) were removed — they existed due to a freeze in the 4-agent era.",
+      "enum": ["ultron", "vigil", "forge", "aegis", "pm", "po", "sm", "analyst", "link", "amosis"]
+    },
+    "agentOrSystemEnum": {
+      "$comment": "CANONICAL + the special non-agent value 'system'. Use where the emitter can be the system itself (e.g. status.activeAgent, activity-log entries emitted by automation).",
+      "enum": ["ultron", "vigil", "forge", "aegis", "pm", "po", "sm", "analyst", "link", "amosis", "system"]
+    },
+    "agentOrAllEnum": {
+      "$comment": "CANONICAL + 'all' (broadcast) + 'system'. Use in discussion from/to fields where the target may be all agents.",
+      "enum": ["ultron", "vigil", "forge", "aegis", "pm", "po", "sm", "analyst", "link", "amosis", "system", "all"]
+    },
+    "agentEnumLegacy": {
+      "$comment": "TOLERANT — superset used ONLY by the activity-log schemas. Includes the canonical IDs + system + all + legacy values actually present in activity-log.json (untouchable): 'usuario' (human decider in old decisions), 'atlas' (old Analyst id, now 'analyst'), 'vigil,forge' (legacy multi-assignment). The 4 phantom aliases (orchestrator/strategist/executor/reviewer) are kept for historical tolerance even though they are not present today. NEVER use this enum in new schemas — only to avoid breaking existing data.",
+      "enum": ["ultron", "vigil", "forge", "aegis", "pm", "po", "sm", "analyst", "link", "amosis", "system", "all", "usuario", "atlas", "vigil,forge", "orchestrator", "strategist", "executor", "reviewer"]
+    },
+    "statusEnum": {
+      "$comment": "Task status in the activity-log.",
+      "enum": ["pending", "in_progress", "done", "blocked"]
+    },
+    "priorityEnum": {
+      "$comment": "Mission/task priority.",
+      "enum": ["baixa", "media", "alta", "critica"]
+    }
+  }
+}
