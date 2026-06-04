@@ -17,18 +17,18 @@ resto. Guia completo: `payload/aios/AIOS-GUIA.md` (ou `/aios-tour` apos instalar
 
 ## Instalacao (one-liner)
 
-> Substitua `<URL-DO-REPO>` pela URL real depois de publicar este repositorio.
+> Repositorio privado — o destinatario precisa ter acesso (convide pelo GitHub) e estar logado no `gh` ou git.
 
 **Linux / macOS / Git-Bash:**
 
 ```bash
-git clone <URL-DO-REPO> aios-setup && cd aios-setup && bash install.sh
+git clone https://github.com/Mateus0601/AIOS-Setup.git aios-setup && cd aios-setup && bash install.sh
 ```
 
 **Windows (PowerShell):**
 
 ```powershell
-git clone <URL-DO-REPO> aios-setup ; cd aios-setup ; ./install.ps1
+git clone https://github.com/Mateus0601/AIOS-Setup.git aios-setup ; cd aios-setup ; ./install.ps1
 ```
 
 O instalador:
