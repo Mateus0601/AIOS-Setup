@@ -1,0 +1,25 @@
+# O empacotamento npm usa o allowlist "files" do package.json
+# (bin/, payload/, install.sh, install.ps1, README.md, MANIFEST.md).
+# Este .npmignore e uma rede de seguranca: garante que nada de pesado/sensivel
+# entre no pacote mesmo que o allowlist mude.
+
+# Dependencias instaladas — NUNCA no pacote
+node_modules/
+**/node_modules/
+
+# Git e metadados
+.git/
+.gitignore
+.gitkeep
+
+# Caches / temporarios / logs
+*.log
+.DS_Store
+Thumbs.db
+*.tgz
+
+# Backups acidentais
+*.bak-*
+.claude.bak-*
+
+# NAO ignore o payload/ — ele E o motor distribuivel e PRECISA ir no pacote.

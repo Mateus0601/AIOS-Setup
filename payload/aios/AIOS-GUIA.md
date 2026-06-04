@@ -118,6 +118,9 @@ So em 4 situacoes (senao ele decide sozinho, porque voce pode estar ausente):
 - `/aios-pack` — empacota o motor pra distribuir/restaurar (sem dados pessoais).
 - `/aios-tour` — reexibe este guia.
 
+> Instalou via npm? O comando de instalacao e `aios-mateus` (rode no terminal,
+> fora do Claude Code). Dentro do Claude Code, use `/aios-tour` para rever isto.
+
 ### Extras (escriba / housekeeping)
 - `/artifact` — registra um artefato criado fora do fluxo.
 - `/decision` — registra uma decisao.
@@ -205,6 +208,9 @@ nunca sobrescreve um CLAUDE.md seu. Depois de instalar, **edite a secao
 
 ## 8. Primeiros passos
 
+0. **Como voce chegou aqui:** se instalou via npm, foi com
+   `npm i -g github:Mateus0601/AIOS-Setup` e depois `aios-mateus` (mesma
+   sequencia em macOS/Windows/Linux). Para rever este guia: `/aios-tour`.
 1. **Confirme o Node:** os hooks e libs usam Node 18+. Rode `node -v`.
 2. **Instale as deps das libs** (se ainda nao):
    `npm install --prefix ~/.claude/aios/lib`

@@ -1,0 +1,29 @@
+{
+  "name": "aios-mateus",
+  "version": "1.0.0",
+  "description": "Instalador cross-platform do motor AIOS (sistema multi-agente para Claude Code). Copia o payload/ sanitizado para ~/.claude/. macOS, Windows e Linux.",
+  "license": "UNLICENSED",
+  "private": true,
+  "type": "commonjs",
+  "bin": {
+    "aios-mateus": "bin/cli.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "files": [
+    "bin/",
+    "payload/",
+    "install.sh",
+    "install.ps1",
+    "README.md",
+    "MANIFEST.md"
+  ],
+  "scripts": {
+    "pack:check": "npm pack --dry-run"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Mateus0601/AIOS-Setup.git"
+  }
+}

@@ -15,7 +15,40 @@ resto. Guia completo: `payload/aios/AIOS-GUIA.md` (ou `/aios-tour` apos instalar
 
 ---
 
-## Instalacao (one-liner)
+## Instalacao via npm (recomendada, multiplataforma)
+
+> **Repositorio privado.** O destinatario precisa de **convite no GitHub** + **git
+> autenticado** (`gh auth login` ou um token com acesso ao repo). Sem isso o npm
+> nao consegue baixar o pacote. O npm baixa o repo **inteiro** (payload incluso)
+> usando o git/gh dele — nada e publicado no registry publico do npm.
+
+A **mesma sequencia** funciona em **macOS, Windows e Linux**:
+
+```bash
+# 1) instala o comando global (npm baixa o repo privado via seu git/gh)
+npm i -g github:Mateus0601/AIOS-Setup
+
+# 2) roda o instalador (so AGORA o AIOS e copiado pro ~/.claude)
+aios-mateus
+```
+
+Ou sem instalar global, direto com `npx`:
+
+```bash
+npx github:Mateus0601/AIOS-Setup
+```
+
+> **Importante:** NAO ha `postinstall` automatico — o `npm i -g` so coloca o
+> comando `aios-mateus` disponivel. A instalacao do AIOS em `~/.claude` so
+> acontece quando voce **roda `aios-mateus` explicitamente**. (Decisao de
+> seguranca: nada toca seu `~/.claude` sem você mandar.)
+
+Flags do `aios-mateus`: `--dest <dir>` (HOME alternativo, util pra teste),
+`--no-npm` (pula o npm install das libs), `--help`.
+
+---
+
+## Instalacao via git clone (alternativa)
 
 > Repositorio privado — o destinatario precisa ter acesso (convide pelo GitHub) e estar logado no `gh` ou git.
 
@@ -31,7 +64,7 @@ git clone https://github.com/Mateus0601/AIOS-Setup.git aios-setup && cd aios-set
 git clone https://github.com/Mateus0601/AIOS-Setup.git aios-setup ; cd aios-setup ; ./install.ps1
 ```
 
-O instalador:
+O instalador (via `aios-mateus`, `install.sh` ou `install.ps1` — todos fazem o mesmo):
 1. Faz **backup** de `~/.claude` se ja existir (`~/.claude.bak-<data>`).
 2. Copia o `payload/` (o motor) para `~/.claude/`.
 3. Roda `npm install` em `~/.claude/aios/lib/` (precisa de **Node 18+**).
@@ -137,7 +170,10 @@ disponivel como slash command: `/aios-pack`.
 
 ```
 aios-setup/
+├── package.json              # pacote npm "aios-mateus" (bin + files allowlist)
+├── .npmignore                # rede de seguranca (node_modules/.git fora; payload dentro)
 ├── bin/
+│   ├── cli.js                # instalador CROSS-PLATFORM em Node puro (= aios-mateus)
 │   ├── aios-pack.js          # o empacotador (gera payload/ + MANIFEST.md)
 │   └── assets/               # arquivos fixos do pacote (comandos novos + guia)
 │       ├── commands/aios-pack.md
@@ -149,3 +185,7 @@ aios-setup/
 ├── MANIFEST.md               # lista auditavel do que foi empacotado
 └── README.md                 # este arquivo
 ```
+
+> **Os tres instaladores sao equivalentes.** `aios-mateus` (Node, via npm) e o
+> recomendado por ser identico nas tres plataformas. `install.sh`/`install.ps1`
+> continuam disponiveis para quem prefere o git clone.
