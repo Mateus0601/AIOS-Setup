@@ -17,15 +17,15 @@ resto. Guia completo: `payload/aios/AIOS-GUIA.md` (ou `/aios-tour` apos instalar
 
 ## Instalacao via npm (recomendada, multiplataforma)
 
-> **Repositorio privado.** O destinatario precisa de **convite no GitHub** + **git
-> autenticado** (`gh auth login` ou um token com acesso ao repo). Sem isso o npm
-> nao consegue baixar o pacote. O npm baixa o repo **inteiro** (payload incluso)
-> usando o git/gh dele — nada e publicado no registry publico do npm.
+> **Repositorio publico.** Qualquer pessoa instala — **sem convite, sem login,
+> sem git clone manual**. O npm baixa o repo **inteiro** (payload incluso)
+> direto do GitHub. (O pacote nao esta publicado no registry publico do npm; a
+> distribuicao e via `github:` — mas como o repo e publico, nao exige auth.)
 
 A **mesma sequencia** funciona em **macOS, Windows e Linux**:
 
 ```bash
-# 1) instala o comando global (npm baixa o repo privado via seu git/gh)
+# 1) instala o comando global (npm baixa o repo publico do GitHub)
 npm i -g github:Mateus0601/AIOS-Setup
 
 # 2) roda o instalador (so AGORA o AIOS e copiado pro ~/.claude)
@@ -50,7 +50,7 @@ Flags do `aios-mateus`: `--dest <dir>` (HOME alternativo, util pra teste),
 
 ## Instalacao via git clone (alternativa)
 
-> Repositorio privado — o destinatario precisa ter acesso (convide pelo GitHub) e estar logado no `gh` ou git.
+> Repositorio publico — qualquer um pode clonar, sem login.
 
 **Linux / macOS / Git-Bash:**
 
