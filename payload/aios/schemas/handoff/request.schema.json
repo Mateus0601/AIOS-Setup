@@ -58,7 +58,7 @@
           "type": "array",
           "items": { "type": "string" },
           "default": [],
-          "description": "Vault paths/queries (relative to ~/Documents/COFRE -01/wiki/, e.g. 'wiki/patterns', 'wiki/decisions/auth') that ULTRON injects per role for the agent's MANDATORY step-0 Vault consultation. Mirrors the gotchas push pattern: ULTRON filters relevant Vault paths by role (VIGIL: wiki/patterns+wiki/decisions; FORGE: wiki/knowledge of the stack; AEGIS: wiki/decisions of the area) and injects them here. Empty array = ULTRON found nothing relevant (or new project with empty Vault) — the agent still attempts a consult and proceeds if empty."
+          "description": "Vault paths/queries (relative to ~/Documents/<SEU-VAULT>/wiki/, e.g. 'wiki/patterns', 'wiki/decisions/auth') that ULTRON injects per role for the agent's MANDATORY step-0 Vault consultation. Mirrors the gotchas push pattern: ULTRON filters relevant Vault paths by role (VIGIL: wiki/patterns+wiki/decisions; FORGE: wiki/knowledge of the stack; AEGIS: wiki/decisions of the area) and injects them here. Empty array = ULTRON found nothing relevant (or new project with empty Vault) — the agent still attempts a consult and proceeds if empty."
         },
         "storyFile": {
           "type": ["string", "null"],

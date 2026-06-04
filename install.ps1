@@ -71,6 +71,20 @@ New-Item -ItemType Directory -Force -Path $ClaudeDir | Out-Null
 Write-Host "Copiando motor para $ClaudeDir ..."
 Copy-Item -Path (Join-Path $PayloadDir "*") -Destination $ClaudeDir -Recurse -Force
 
+# --- CLAUDE.md: bootstrap do modo ULTRON (so cria se ausente) ---
+# O payload traz um CLAUDE.md generico. Copiamos para ~/CLAUDE.md SO SE ausente,
+# para nao sobrescrever um proprio. Sem ele o Claude Code nao entra no modo ULTRON.
+$ClaudeMdSrc  = Join-Path $ClaudeDir "CLAUDE.md"
+$ClaudeMdDest = Join-Path $Dest "CLAUDE.md"
+if (Test-Path $ClaudeMdSrc) {
+  if (-not (Test-Path $ClaudeMdDest)) {
+    Copy-Item -Path $ClaudeMdSrc -Destination $ClaudeMdDest -Force
+    Write-Host "CLAUDE.md criado em $ClaudeMdDest (bootstrap do modo ULTRON)."
+  } else {
+    Write-Host "CLAUDE.md ja existe em $ClaudeMdDest - mantido (template em $ClaudeMdSrc)."
+  }
+}
+
 # --- settings.json: so cria a partir do template se nao existir ---
 $TplPath = Join-Path $ClaudeDir "settings.template.json"
 $SetPath = Join-Path $ClaudeDir "settings.json"

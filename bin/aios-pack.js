@@ -195,6 +195,10 @@ copyFile(path.join(SRC, 'aios/evolution-log.md'), 'aios/evolution-log.md');
 // 2e. Sanitiza vazamentos pontuais em arquivos de codigo (docstrings/exemplos)
 sanitizeSourceLeaks();
 
+// 2f. Sanitiza paths pessoais hardcoded em TODOS os arquivos de texto do payload
+//     (username, home do Windows, Vault, OneDrive) -> portavel/placeholder.
+sanitizePersonalPaths();
+
 // ----------------------------------------------------------------------------
 // 3. Arquivos do PROPRIO pacote (comandos novos) — gerados/copiados depois
 //    aios-pack.md e aios-tour.md sao escritos por scripts externos (build do
@@ -224,11 +228,16 @@ writeManifest(gateResult);
 log('');
 log(`Arquivos empacotados: ${copied.length}`);
 if (RUN_GATE) {
+  const alerts = (gateResult.findings || []).filter((f) => f.alert);
   if (gateResult.clean) {
-    log('GATE DE SEGURANCA: LIMPO (nenhum vazamento encontrado).');
+    log('GATE DE SEGURANCA: LIMPO (nenhum vazamento bloqueante encontrado).');
+    if (alerts.length) {
+      log(`  (${alerts.length} alerta(s) nao-bloqueante(s) — nomes de projeto em exemplos:)`);
+      for (const f of alerts) log(`  ~ ${f.file}:${f.line} [${f.rule}] ${f.snippet}`);
+    }
   } else {
     log('GATE DE SEGURANCA: BLOQUEADO — vazamentos encontrados:');
-    for (const f of gateResult.findings) log(`  - ${f.file}:${f.line} [${f.rule}] ${f.snippet}`);
+    for (const f of (gateResult.blocking || gateResult.findings)) log(`  - ${f.file}:${f.line} [${f.rule}] ${f.snippet}`);
     process.exitCode = 2;
   }
 }
@@ -344,6 +353,47 @@ function sanitizeSourceLeaks() {
     .replace(/memory set vigil human "Nome: Mateus\.\.\."/,
       'memory set vigil human "Nome: <seu nome>..."'));
 
+  // --- M2: nomes de projeto REAIS usados como EXEMPLO -> nomes neutros -----
+  // Apenas em exemplos/testes/comentarios; nao altera logica (os testes usam
+  // os nomes so como strings de projeto, equivalentes a qualquer outro nome).
+  // agent-templates.md: lista de exemplos de <projeto>.
+  patch('aios/protocols/agent-templates.md', (s) => s
+    .replace('ex: `aios`, `logitek`, `panini`, `critiq`', 'ex: `aios`, `projeto-a`, `projeto-b`, `acme`'));
+
+  // notify.js: comentario de exemplo de extracao de nome de projeto.
+  patch('hooks/notify.js', (s) => s
+    .replace(/critiq/g, 'acme'));
+
+  // runs-protocol.md: exemplos de runId/pastas com nomes de projeto reais.
+  patch('aios/protocols/runs-protocol.md', (s) => s
+    .replace(/LogiTok/g, 'Projeto-A')
+    .replace(/logitok/g, 'projeto-a')
+    .replace(/\bUltron\b(?= vs| vs\.)/g, 'Projeto-B'));
+
+  // test-runs-*.js: usam 'logitok'/'ultron' como nomes de projeto de teste.
+  for (const t of ['aios/validation/test-runs-e2e.js', 'aios/validation/test-runs-smoke.js']) {
+    patch(t, (s) => s
+      .replace(/\(logitok \+ ultron\)/g, '(projeto-a + projeto-b)')
+      .replace(/LogiTok/g, 'Projeto-A')
+      .replace(/logitok/g, 'projeto-a')
+      .replace(/'ultron'/g, "'projeto-b'")
+      .replace(/ultron-only/g, 'projeto-b-only')
+      // 'ultron' usado como NOME DE PROJETO em assercoes/labels/strings de teste
+      // (nao o agente ULTRON). Mantem os testes consistentes com openRun('projeto-b').
+      .replace(/run-ultron-/g, 'run-projeto-b-')
+      .replace(/\(ultron\)/g, '(projeto-b)')
+      .replace(/Ultron dispatcher/g, 'Projeto-B dispatcher')
+      .replace(/'ultron-only'/g, "'projeto-b-only'")
+      .replace(/i % 2 === 0 \? 'projeto-a' : 'ultron'/g, "i % 2 === 0 ? 'projeto-a' : 'projeto-b'"));
+  }
+
+  // session-classifier.js — comentario de exemplo com path pessoal "achatado"
+  // (formato C--Users-mateu-...-Logitok). Troca por exemplo neutro. So comentario.
+  patch('aios/lib/session-classifier.js', (s) => s
+    .replace(
+      /\/\/ "C--Users-mateu-OneDrive-Documentos-Code-Logitok" -> ultimo segmento util/,
+      '// "C--Users-voce-projects-acme" -> ultimo segmento util'));
+
   // ingest-trigger.js — neutraliza comentarios e zera a lista de projetos pessoais.
   patch('aios/lib/ingest-trigger.js', (s) => s
     .replace(/Projetos conhecidos do Mateus/g, 'Projetos conhecidos do usuario (configurar)')
@@ -354,16 +404,83 @@ function sanitizeSourceLeaks() {
       'const KNOWN_PROJECTS = [\n    // Adicione aqui os nomes dos SEUS projetos para o ingest reconhece-los.\n  ];'));
 }
 
+/**
+ * Sanitiza paths pessoais hardcoded em TODOS os arquivos de TEXTO do payload.
+ * Roda DEPOIS das copias e dos sanitizadores pontuais. Deterministico, so texto.
+ *
+ * Estrategia:
+ *  - C1 (pdf-generation.md): troca o require absoluto por um require portavel
+ *    baseado em HOME/USERPROFILE (evita MODULE_NOT_FOUND no amigo).
+ *  - C2 (missao.md): troca o path pessoal OneDrive\Documentos\Code por ~/projects.
+ *  - GERAL: para todo arquivo de texto, substitui ocorrencias do home do
+ *    Windows do autor e do Vault/OneDrive por placeholders portaveis (~).
+ */
+function sanitizePersonalPaths() {
+  // --- C1: require portavel no skill de PDF -------------------------------
+  patch('aios/skills/pdf-generation.md', (s) => s
+    .replace(
+      /const \{ htmlToPdf \} = require\(['"]\/c\/Users\/mateu\/\.claude\/aios\/lib\/html2pdf\.js['"]\);/,
+      "const { htmlToPdf } = require(require('path').join(process.env.HOME || process.env.USERPROFILE, '.claude/aios/lib/html2pdf.js'));"));
+
+  // --- C2: /missao cria projeto em ~/projects, sem OneDrive/path pessoal --
+  patch('commands/missao.md', (s) => s
+    .replace(
+      /Criar em `C:\\Users\\mateu\\OneDrive\\Documentos\\Code\\\{nome-do-projeto\}`/,
+      'Criar em `~/projects/{nome-do-projeto}`')
+    // fallback caso o trecho esteja com barras normais ou outro separador
+    .replace(
+      /C:[\\/]+Users[\\/]+mateu[\\/]+OneDrive[\\/]+Documentos[\\/]+Code[\\/]+\{nome-do-projeto\}/g,
+      '~/projects/{nome-do-projeto}'));
+
+  // --- GERAL: percorre todo o payload de texto e neutraliza paths pessoais
+  const VAULT_PLACEHOLDER = '~/Documents/<SEU-VAULT>';
+  for (const rel of listFilesRec(PAYLOAD)) {
+    if (/\.(db|png|jpg|jpeg|gif|ico|woff2?|ttf|otf|zip|gz|pdf)$/i.test(rel)) continue;
+    patch(rel, (s) => {
+      let out = s;
+      // 1. Vault concreto do autor -> placeholder generico (faz ANTES do home).
+      //    Captura o prefixo ATE "COFRE -01" e tambem o subpath que vem depois
+      //    (raw\artifacts\..., scribe-decisions.md, etc.), convertendo as
+      //    barras invertidas do subpath em barras normais para ficar portavel.
+      const vaultPrefix =
+        /(?:C:[\\/]+Users[\\/]+mateu|\/c\/Users\/mateu)[\\/]+Documents[\\/]+COFRE ?-01([\\/][^\s`'")]*)?/gi;
+      out = out.replace(vaultPrefix, (_m, sub) =>
+        VAULT_PLACEHOLDER + (sub ? sub.replace(/\\/g, '/') : ''));
+      // 2. OneDrive\Documentos\Code do autor -> ~/projects.
+      out = out
+        .replace(/C:[\\/]+Users[\\/]+mateu[\\/]+OneDrive[\\/]+Documentos[\\/]+Code/gi,
+          '~/projects')
+        .replace(/\/c\/Users\/mateu\/OneDrive\/Documentos\/Code/gi, '~/projects');
+      // 3. Home do Windows do autor -> ~ (qualquer separador remanescente).
+      out = out
+        .replace(/C:[\\/]+Users[\\/]+mateu/gi, '~')
+        .replace(/\/c\/Users\/mateu/gi, '~');
+      // 4. Nome PESSOAL do Vault do autor ("COFRE -01") -> placeholder neutro.
+      //    Aparece solto em docs ("~/Documents/COFRE -01/wiki") e como default
+      //    em libs (path.join(HOME,'Documents','COFRE -01')). Trocar a string
+      //    nao quebra logica: continua sendo so um nome default de pasta, e o
+      //    usuario sobrescreve via env (AIOS_VAULT_ROOT).
+      out = out
+        .replace(/COFRE ?-01/g, '<SEU-VAULT>')
+        // colapsa o placeholder duplo que pode surgir de "~/Documents/<SEU-VAULT>"
+        // ja gerado na etapa 1 seguido de outra ocorrencia (idempotente).
+        .replace(/<SEU-VAULT>\/<SEU-VAULT>/g, '<SEU-VAULT>');
+      return out;
+    });
+  }
+}
+
 /** Le um arquivo ja no payload, aplica fn(content) e regrava (marca sanitizado). */
 function patch(destRel, fn) {
   const abs = path.join(PAYLOAD, destRel);
   if (!exists(abs)) { warn(`patch SKIP (nao existe no payload): ${destRel}`); return; }
   const before = fs.readFileSync(abs, 'utf8');
   const after = fn(before);
+  if (before === after) return; // nada mudou -> nao reescreve nem marca
   fs.writeFileSync(abs, after, 'utf8');
   const rec = copied.find((c) => c.dest === destRel);
   if (rec) rec.sanitized = true;
-  if (before !== after) log(`  sanitizado (leak em codigo): ${destRel}`);
+  log(`  sanitizado (leak em codigo): ${destRel}`);
 }
 
 // ============================================================================
@@ -388,6 +505,9 @@ function securityGate(root) {
 
   const rules = [
     { name: 'nome-mateus', re: /\bmateus\b/i },
+    { name: 'path-windows-pessoal', re: /Users[\\/]+mateu/i },
+    { name: 'username', re: /\bmateu\b/i },
+    { name: 'projeto-real', re: /\b(logitok|logitek|panini|critiq|polymarket|orbita|praiago|promokintsugi)\b/i, alert: true },
     { name: 'email-pessoal', re: /mateusdeustempoder/i },
     { name: 'email-generico', re: /[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/i },
     { name: 'socio-michel', re: /\bmichel\b/i },
@@ -427,12 +547,16 @@ function securityGate(root) {
             line: i + 1,
             rule: rule.name,
             snippet: line.trim().slice(0, 120),
+            alert: !!rule.alert, // alert=so avisa, nao bloqueia o pack
           });
         }
       }
     }
   }
-  return { clean: findings.length === 0, findings };
+  // BLOQUEANTES = findings sem flag alert. ALERTAS aparecem no relatorio mas
+  // nao impedem o pack (ex: nomes de projeto em exemplos neutralizaveis).
+  const blocking = findings.filter((f) => !f.alert);
+  return { clean: blocking.length === 0, findings, blocking };
 }
 
 // ============================================================================
@@ -448,7 +572,8 @@ function writeManifest(gate) {
   lines.push('');
   lines.push(`- Total de arquivos: **${sorted.length}**`);
   lines.push(`- Arquivos sanitizados: **${sorted.filter((c) => c.sanitized).length}**`);
-  lines.push(`- Gate de seguranca: **${gate.clean ? 'LIMPO' : 'BLOQUEADO (' + gate.findings.length + ' vazamentos)'}**`);
+  const blockingCount = (gate.blocking || gate.findings || []).length;
+  lines.push(`- Gate de seguranca: **${gate.clean ? 'LIMPO' : 'BLOQUEADO (' + blockingCount + ' vazamentos)'}**`);
   lines.push('');
   lines.push('| # | Arquivo (destino em ~/.claude/) | Sanitizado |');
   lines.push('|---|---------------------------------|------------|');
@@ -461,7 +586,18 @@ function writeManifest(gate) {
     lines.push('');
     lines.push('| Arquivo | Linha | Regra | Trecho |');
     lines.push('|---------|-------|-------|--------|');
-    for (const f of gate.findings) {
+    for (const f of (gate.blocking || gate.findings)) {
+      lines.push(`| \`${f.file}\` | ${f.line} | ${f.rule} | \`${f.snippet.replace(/\|/g, '\\|')}\` |`);
+    }
+    lines.push('');
+  }
+  const alerts = (gate.findings || []).filter((f) => f.alert);
+  if (alerts.length) {
+    lines.push('## ALERTAS NAO-BLOQUEANTES (nomes de projeto em exemplos)');
+    lines.push('');
+    lines.push('| Arquivo | Linha | Regra | Trecho |');
+    lines.push('|---------|-------|-------|--------|');
+    for (const f of alerts) {
       lines.push(`| \`${f.file}\` | ${f.line} | ${f.rule} | \`${f.snippet.replace(/\|/g, '\\|')}\` |`);
     }
     lines.push('');

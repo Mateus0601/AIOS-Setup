@@ -171,6 +171,7 @@ Detalhes: `~/.claude/aios/protocols/runs-protocol.md`.
 
 | Componente | Caminho |
 |------------|---------|
+| Bootstrap do modo ULTRON | `~/CLAUDE.md` |
 | Cerebro auto-carregado | `~/.claude/rules/doc-roots.md` + `rules/ultron-core.md` |
 | Protocolos (12) | `~/.claude/aios/protocols/` |
 | Skills (9) | `~/.claude/aios/skills/` |
@@ -186,6 +187,19 @@ Detalhes: `~/.claude/aios/protocols/runs-protocol.md`.
 
 > Tudo que e "pessoal" (seus projetos, stories, checkpoints, memoria) e
 > criado por VOCE conforme usa. O pacote so traz o **motor**.
+
+### O papel do `~/CLAUDE.md` (liga o modo ULTRON)
+
+O `~/CLAUDE.md` e o **bootstrap** do sistema: e ele que faz o Claude Code
+operar como **ULTRON** (orquestrador) em vez de uma IA generica. Ele aponta
+para `~/.claude/rules/doc-roots.md` (o cerebro) e define as regras de
+comportamento (NUNCA/SEMPRE).
+
+O instalador copia um `CLAUDE.md` **generico** (com a secao "Projetos Ativos"
+em branco) para `~/CLAUDE.md` **somente se voce ainda nao tiver um** — assim ele
+nunca sobrescreve um CLAUDE.md seu. Depois de instalar, **edite a secao
+"Projetos Ativos"** com os seus projetos (path, stack, comandos). Sem o
+`~/CLAUDE.md`, o Claude Code nao entra no modo ULTRON.
 
 ---
 

@@ -49,9 +49,9 @@ Quando encontrar ambiguidade, multiplas abordagens validas, ou qualquer situacao
    - `obsidian_search_simple`
    - `obsidian_complex_search`
 2. **Leitura direta de disco** (fallback se MCP falhar ou timeout > 5s):
-   - Glob/Read direto em `~/Documents/COFRE -01/wiki/` (ex: `Glob('~/Documents/COFRE -01/wiki/**/*.md')` + `Read` dos arquivos relevantes)
+   - Glob/Read direto em `~/Documents/<SEU-VAULT>/wiki/` (ex: `Glob('~/Documents/<SEU-VAULT>/wiki/**/*.md')` + `Read` dos arquivos relevantes)
 
-**Regra de fallback:** se o MCP Obsidian falhar ou exceder 5s, NAO trave — caia para leitura direta de `~/Documents/COFRE -01/wiki/`. Se o diretorio do Vault nao existir / estiver vazio para o projeto, trate como projeto novo (excecao acima) e siga.
+**Regra de fallback:** se o MCP Obsidian falhar ou exceder 5s, NAO trave — caia para leitura direta de `~/Documents/<SEU-VAULT>/wiki/`. Se o diretorio do Vault nao existir / estiver vazio para o projeto, trate como projeto novo (excecao acima) e siga.
 
 Setup completo do MCP: `~/.claude/aios/docs/MCP-OBSIDIAN-SETUP.md`.
 
@@ -381,10 +381,10 @@ Execute a implementacao.
 
 Apos a entrega final (antes de retornar o HANDOFF_RESPONSE ao ULTRON), FORGE DEVE criar um registro do trabalho feito em:
 
-`C:\Users\mateu\Documents\COFRE -01\raw\artifacts\forge-<projeto>-YYYY-MM-DD-<slug>.md`
+`~/Documents/<SEU-VAULT>/raw/artifacts/forge-<projeto>-YYYY-MM-DD-<slug>.md`
 
 Onde:
-- `<projeto>` = nome curto do projeto (ex: `aios`, `logitek`, `panini`, `critiq`). Se nao houver projeto explicito, use `aios`.
+- `<projeto>` = nome curto do projeto (ex: `aios`, `projeto-a`, `projeto-b`, `acme`). Se nao houver projeto explicito, use `aios`.
 - `YYYY-MM-DD` = data atual.
 - `<slug>` = 3-5 palavras em kebab-case descrevendo a missao.
 

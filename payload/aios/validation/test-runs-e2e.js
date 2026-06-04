@@ -4,7 +4,7 @@
  *
  * Unlike test-runs-smoke (which seeds a temp root via the `root` param), this
  * drives the engine the way ULTRON actually would: a sandbox AIOS_HOME env, two
- * concurrent runs (logitok + ultron) opened through the real lib, divergent
+ * concurrent runs (projeto-a + projeto-b) opened through the real lib, divergent
  * per-run state, concurrent activity-log appends stamped with runId via the
  * filelock, and a /continue-style read of the index to list activeRuns.
  *
@@ -58,11 +58,11 @@ async function main() {
   ok('listActiveRuns() empty in half-state', runs.listActiveRuns().length === 0);
 
   // ---- STEP 1: open 2 REAL concurrent runs through the real lib (no root arg) ----
-  console.log('\n--- STEP 1: openRun x2 (logitok + ultron), env-driven ---');
+  console.log('\n--- STEP 1: openRun x2 (projeto-a + projeto-b), env-driven ---');
   const t = new Date('2026-06-03T03:10:00Z');
-  const rLogi = runs.openRun('logitok', { date: t, meta: { mission: 'cobranca', complexity: 'medium' } });
-  const rUlt  = runs.openRun('ultron',  { date: t, meta: { mission: 'dispatcher', complexity: 'complex' } });
-  console.log('  logitok run:', rLogi.runId, '->', rLogi.dir);
+  const rLogi = runs.openRun('projeto-a', { date: t, meta: { mission: 'cobranca', complexity: 'medium' } });
+  const rUlt  = runs.openRun('projeto-b',  { date: t, meta: { mission: 'dispatcher', complexity: 'complex' } });
+  console.log('  projeto-a run:', rLogi.runId, '->', rLogi.dir);
   console.log('  ultron  run:', rUlt.runId,  '->', rUlt.dir);
 
   ok('2 isolated run-dirs on disk', rLogi.dir !== rUlt.dir
@@ -81,14 +81,14 @@ async function main() {
 
   // ---- STEP 3: divergent per-run state must NOT cross ----
   console.log('\n--- STEP 3: divergent per-run status (no cross-talk) ---');
-  runs.writeRunStatus(rLogi.runId, { phase: 'execution', activeAgent: 'forge', activeTask: 'LogiTok cobranca' });
-  runs.writeRunStatus(rUlt.runId,  { phase: 'review',    activeAgent: 'aegis', activeTask: 'Ultron dispatcher' });
+  runs.writeRunStatus(rLogi.runId, { phase: 'execution', activeAgent: 'forge', activeTask: 'Projeto-A cobranca' });
+  runs.writeRunStatus(rUlt.runId,  { phase: 'review',    activeAgent: 'aegis', activeTask: 'Projeto-B dispatcher' });
   const sLogi = runs.readRunStatus(rLogi.runId);
   const sUlt  = runs.readRunStatus(rUlt.runId);
-  console.log('  logitok:', sLogi.phase, sLogi.activeAgent, '/', sLogi.activeTask);
+  console.log('  projeto-a:', sLogi.phase, sLogi.activeAgent, '/', sLogi.activeTask);
   console.log('  ultron :', sUlt.phase,  sUlt.activeAgent,  '/', sUlt.activeTask);
-  ok('logitok state intact', sLogi.phase === 'execution' && sLogi.activeTask === 'LogiTok cobranca');
-  ok('ultron state intact',  sUlt.phase  === 'review'    && sUlt.activeTask  === 'Ultron dispatcher');
+  ok('projeto-a state intact', sLogi.phase === 'execution' && sLogi.activeTask === 'Projeto-A cobranca');
+  ok('ultron state intact',  sUlt.phase  === 'review'    && sUlt.activeTask  === 'Projeto-B dispatcher');
   ok('states diverge (no clobber across runs)',
     sLogi.phase !== sUlt.phase && sLogi.activeTask !== sUlt.activeTask);
   // the legacy ROOT status.json must be UNTOUCHED by per-run writes
@@ -105,7 +105,7 @@ async function main() {
     const fromRun = i % 2 === 0 ? rLogi.runId : rUlt.runId;
     ops.push(activityLog.appendActivity(
       { agent: i % 2 === 0 ? 'forge' : 'aegis', action: `e2e_append_${i}`,
-        project: i % 2 === 0 ? 'logitok' : 'ultron' },
+        project: i % 2 === 0 ? 'projeto-a' : 'projeto-b' },
       { runId: fromRun, agent: 'orchestrator' } // note: NO root arg — env-driven
     ));
   }

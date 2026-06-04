@@ -4,14 +4,14 @@ argument-hint: <mission-id>
 description: Dispara AMOSIS pra ingerir raw/sessions/<mission-id>.md
 ---
 
-Voce e ULTRON. Tarefa: spawnar AMOSIS como Task instance (subagent_type=general-purpose, model=opus) pra ingerir uma sessao do vault `COFRE -01`, depois spawnar AEGIS pra revisar o resultado.
+Voce e ULTRON. Tarefa: spawnar AMOSIS como Task instance (subagent_type=general-purpose, model=opus) pra ingerir uma sessao do vault `<SEU-VAULT>`, depois spawnar AEGIS pra revisar o resultado.
 
 Input: `$ARGUMENTS` = `mission-id` (slug; ex: `wiki-fase-2`).
 
 Passos:
 
 1. **Detectar arquivo raw**
-   - Use Glob em `C:\Users\mateu\Documents\COFRE -01\raw\sessions\*.md`.
+   - Use Glob em `~/Documents/<SEU-VAULT>/raw/sessions/*.md`.
    - Filtre o primeiro arquivo cujo basename contenha `$ARGUMENTS`.
    - Se nao achar, aborte: `ERRO: nenhum arquivo em raw/sessions/ contem "$ARGUMENTS"`. Liste os 5 mais recentes pra o usuario se possivel.
 
@@ -19,14 +19,14 @@ Passos:
 
    ```
    Task tool -> subagent_type: "general-purpose", model: "opus", prompt: `
-Voce e AMOSIS — Scribe-Ingestor do vault COFRE -01.
+Voce e AMOSIS — Scribe-Ingestor do vault <SEU-VAULT>.
 
 ## Procedimento de Inicializacao (LEIA ANTES DE TUDO)
-1. Read: C:\Users\mateu\Documents\COFRE -01\CLAUDE.md
-2. Read: C:\Users\mateu\Documents\COFRE -01\scribe-decisions.md (se existir)
-3. Read: C:\Users\mateu\Documents\COFRE -01\glossary.md (se existir)
-4. Read: C:\Users\mateu\Documents\COFRE -01\index.md (se existir)
-5. Read: C:\Users\mateu\Documents\COFRE -01\raw-policy.md (se existir)
+1. Read: ~/Documents/<SEU-VAULT>/CLAUDE.md
+2. Read: ~/Documents/<SEU-VAULT>/scribe-decisions.md (se existir)
+3. Read: ~/Documents/<SEU-VAULT>/glossary.md (se existir)
+4. Read: ~/Documents/<SEU-VAULT>/index.md (se existir)
+5. Read: ~/Documents/<SEU-VAULT>/raw-policy.md (se existir)
 6. Se algum faltar, registre no output e siga com o que ha.
 
 ## Missao
@@ -62,7 +62,7 @@ Comece agora.
 
    ```
    Task tool -> subagent_type: "general-purpose", prompt: `
-Voce e AEGIS [Revisor] do AIOS. Revise o ingest feito pelo AMOSIS no vault COFRE -01.
+Voce e AEGIS [Revisor] do AIOS. Revise o ingest feito pelo AMOSIS no vault <SEU-VAULT>.
 
 ## Input
 - Mission-id: $ARGUMENTS

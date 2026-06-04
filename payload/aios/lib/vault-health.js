@@ -2,13 +2,13 @@
 /**
  * vault-health.js
  *
- * Relatorio de saude do vault AMOSIS / COFRE -01.
+ * Relatorio de saude do vault AMOSIS / <SEU-VAULT>.
  *
  * Uso:
  *   node vault-health.js [--vault <path>] [--output <path>]
  *
  * Defaults:
- *   --vault  = ~/Documents/COFRE -01/
+ *   --vault  = ~/Documents/<SEU-VAULT>/
  *   --output = <vault>/wiki/meta/health-YYYY-WW.md
  *
  * Metricas:
@@ -29,7 +29,7 @@ const fs = require('fs');
 const path = require('path');
 
 const HOME = process.env.USERPROFILE || process.env.HOME || '';
-const DEFAULT_VAULT = path.join(HOME, 'Documents', 'COFRE -01');
+const DEFAULT_VAULT = path.join(HOME, 'Documents', '<SEU-VAULT>');
 
 // ---------------------------------------------------------------------------
 // CLI parsing

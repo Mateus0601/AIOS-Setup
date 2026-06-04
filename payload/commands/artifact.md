@@ -4,7 +4,7 @@ argument-hint: <path-do-arquivo> <descricao>
 description: Registra artifact criado fora do fluxo agente
 ---
 
-Voce e ULTRON. Tarefa: registrar um artifact (arquivo criado fora do fluxo de agentes) em `raw/artifacts/` do vault COFRE -01.
+Voce e ULTRON. Tarefa: registrar um artifact (arquivo criado fora do fluxo de agentes) em `raw/artifacts/` do vault <SEU-VAULT>.
 
 Input: `$ARGUMENTS` no formato `<path> <descricao livre>`.
 
@@ -26,11 +26,11 @@ Passos:
    - ISO: `date -u +%Y-%m-%dT%H:%M:%SZ` -> `TS_ISO`.
 
 4. **Path relativo**
-   - Se `PATH_ORIGEM` estiver dentro de `C:\Users\mateu\Documents\COFRE -01\`, calcule o relativo ao vault.
+   - Se `PATH_ORIGEM` estiver dentro de `~/Documents/<SEU-VAULT>/`, calcule o relativo ao vault.
    - Caso contrario, registre o absoluto mesmo.
 
 5. **Criar artifact**
-   - Dir: `C:\Users\mateu\Documents\COFRE -01\raw\artifacts\` (mkdir -p se faltar).
+   - Dir: `~/Documents/<SEU-VAULT>/raw/artifacts/` (mkdir -p se faltar).
    - Arquivo: `user-manual-<TODAY>-<slug>.md`
    - Conteudo:
 

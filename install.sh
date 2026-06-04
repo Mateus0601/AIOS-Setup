@@ -82,6 +82,21 @@ echo "Copiando motor para $CLAUDE_DIR ..."
 # cp -R copia o CONTEUDO de payload/ para dentro de ~/.claude/
 cp -R "$PAYLOAD_DIR/." "$CLAUDE_DIR/"
 
+# ─── CLAUDE.md: bootstrap do modo ULTRON (so cria se ausente) ──────────────
+# O payload traz um CLAUDE.md generico (template). Copiamos para o HOME do
+# usuario (~/CLAUDE.md) SO SE ele ainda nao tiver um, para nao sobrescrever um
+# CLAUDE.md proprio. Sem este arquivo o Claude Code nao entra no modo ULTRON.
+CLAUDE_MD_SRC="$CLAUDE_DIR/CLAUDE.md"
+CLAUDE_MD_DEST="$DEST_HOME/CLAUDE.md"
+if [ -f "$CLAUDE_MD_SRC" ]; then
+  if [ ! -f "$CLAUDE_MD_DEST" ]; then
+    cp "$CLAUDE_MD_SRC" "$CLAUDE_MD_DEST"
+    echo "CLAUDE.md criado em $CLAUDE_MD_DEST (bootstrap do modo ULTRON)."
+  else
+    echo "CLAUDE.md ja existe em $CLAUDE_MD_DEST — mantido (template em $CLAUDE_MD_SRC)."
+  fi
+fi
+
 # ─── settings.json: so cria a partir do template se nao existir ────────────
 if [ -f "$CLAUDE_DIR/settings.template.json" ]; then
   if [ ! -f "$CLAUDE_DIR/settings.json" ]; then

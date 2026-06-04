@@ -21,7 +21,7 @@ const path = require('path');
 const { spawnSync } = require('child_process');
 
 const HOME = process.env.USERPROFILE || process.env.HOME || '';
-const VAULT = path.join(HOME, 'Documents', 'COFRE -01');
+const VAULT = path.join(HOME, 'Documents', '<SEU-VAULT>');
 const RAW_SESSIONS = path.join(VAULT, 'raw', 'sessions');
 const RAW_INBOX = path.join(VAULT, 'raw', 'inbox');
 const LOG_DIR = path.join(HOME, '.claude', 'aios', 'logs');

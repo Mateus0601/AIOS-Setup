@@ -120,7 +120,7 @@ function fireTelegram(title, body, eventType) {
 
 /**
  * Extrai o nome do projeto a partir do cwd do payload.
- * Ex: "C:\\Users\\mateu\\critiq" → "critiq"
+ * Ex: "~\\acme" → "acme"
  */
 function projectName(cwd) {
   if (!cwd) return '';

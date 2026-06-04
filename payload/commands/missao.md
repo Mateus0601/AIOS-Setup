@@ -9,7 +9,7 @@ Inicie uma nova missao no sistema AIOS. Crie o mission-board e o scaffolding com
 Antes de qualquer analise ou planejamento, ULTRON DEVE criar a infraestrutura base do projeto:
 
 **1. Diretorio do projeto** (OBRIGATORIO):
-   - Criar em `C:\Users\mateu\OneDrive\Documentos\Code\{nome-do-projeto}`
+   - Criar em `~/projects/{nome-do-projeto}`
    - Este e o diretorio padrao para TODOS os projetos novos. Sem excecao.
    - O nome do diretorio deve ser kebab-case (ex: `meu-projeto`, `synth-v2`)
 

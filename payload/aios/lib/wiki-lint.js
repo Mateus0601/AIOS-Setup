@@ -2,13 +2,13 @@
 /**
  * wiki-lint.js
  *
- * Linter para vault AMOSIS / COFRE -01.
+ * Linter para vault AMOSIS / <SEU-VAULT>.
  *
  * Uso:
  *   node wiki-lint.js [--vault <path>] [--output <path>]
  *
  * Defaults:
- *   --vault   = ~/Documents/COFRE -01/
+ *   --vault   = ~/Documents/<SEU-VAULT>/
  *   --output  = <vault>/wiki/meta/lint-report-YYYY-MM-DD.md
  *
  * Valida:
@@ -27,7 +27,7 @@ const fs = require('fs');
 const path = require('path');
 
 const HOME = process.env.USERPROFILE || process.env.HOME || '';
-const DEFAULT_VAULT = path.join(HOME, 'Documents', 'COFRE -01');
+const DEFAULT_VAULT = path.join(HOME, 'Documents', '<SEU-VAULT>');
 
 const VALID_TYPES = ['agent', 'mission', 'pattern', 'knowledge', 'decision', 'glossary', 'meta'];
 const VALID_STATUSES = ['draft', 'active', 'archived'];

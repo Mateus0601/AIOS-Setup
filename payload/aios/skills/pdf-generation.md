@@ -19,7 +19,7 @@
 
 ### Using the AIOS generator (preferred)
 ```js
-const { htmlToPdf } = require('/c/Users/mateu/.claude/aios/lib/html2pdf.js');
+const { htmlToPdf } = require(require('path').join(process.env.HOME || process.env.USERPROFILE, '.claude/aios/lib/html2pdf.js'));
 
 // from an inline string
 await htmlToPdf({ html: '<h1>Relatório ✅</h1>', output: '/tmp/out.pdf' });

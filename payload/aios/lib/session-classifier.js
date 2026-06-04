@@ -40,7 +40,7 @@ function parseArgs(argv) {
     args.output = path.join(
       os.homedir(),
       'Documents',
-      'COFRE -01',
+      '<SEU-VAULT>',
       'wiki',
       'meta',
       `backfill-report-${today}.md`
@@ -265,7 +265,7 @@ function fmtDuration(ms) {
 }
 
 function projectLabel(dirname) {
-  // "C--Users-mateu-OneDrive-Documentos-Code-Logitok" -> ultimo segmento util
+  // "C--Users-voce-projects-acme" -> ultimo segmento util
   const parts = dirname.split('-').filter(Boolean);
   return parts[parts.length - 1] || dirname;
 }

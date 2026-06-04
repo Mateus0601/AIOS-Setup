@@ -4,7 +4,7 @@ argument-hint: <texto livre da decisao tomada>
 description: Cria raw/decisions/ a partir de texto livre
 ---
 
-Voce e ULTRON. Tarefa: criar arquivo `raw/decisions/YYYY-MM-DD-HHMM-<slug>.md` em `C:\Users\mateu\Documents\COFRE -01\raw\decisions\`.
+Voce e ULTRON. Tarefa: criar arquivo `raw/decisions/YYYY-MM-DD-HHMM-<slug>.md` em `~/Documents/<SEU-VAULT>/raw/decisions/`.
 
 Input: `$ARGUMENTS` (texto da decisao).
 
@@ -20,9 +20,9 @@ Passos:
    - Execute via Bash: `date +%Y-%m-%d-%H%M` -> variavel `TS`.
 
 3. **Paths**
-   - Dir destino: `C:\Users\mateu\Documents\COFRE -01\raw\decisions\`
+   - Dir destino: `~/Documents/<SEU-VAULT>/raw/decisions/`
    - Arquivo: `<TS>-<slug>.md`
-   - Garanta que o dir existe via Bash: `mkdir -p "/c/Users/mateu/Documents/COFRE -01/raw/decisions"` (so cria se faltar).
+   - Garanta que o dir existe via Bash: `mkdir -p "~/Documents/<SEU-VAULT>/raw/decisions"` (so cria se faltar).
 
 4. **Criar arquivo** com este conteudo exato:
 

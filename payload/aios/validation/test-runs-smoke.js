@@ -3,7 +3,7 @@
  * test-runs-smoke.js — GATE for parallelism Fase A (T10)
  *
  * Proves, by REALLY running:
- *  1. Run isolation: 2 concurrent runs (logitok + ultron) have SEPARATE state.
+ *  1. Run isolation: 2 concurrent runs (projeto-a + projeto-b) have SEPARATE state.
  *  2. Concurrent append: 2 "simultaneous" activity-log appends through the lock
  *     produce an INTACT JSON with both entries.
  *  3. Backward compat: with no runs/, the index helper reports single-run mode.
@@ -50,36 +50,36 @@ async function main() {
   // ---- TEST 1: isolation of 2 concurrent runs ----
   console.log('\n--- TEST 1 (isolation): 2 concurrent runs ---');
   const d = new Date('2026-06-03T02:45:00Z');
-  const r1 = runs.openRun('logitok', { root, date: d, meta: { complexity: 'medium' } });
-  const r2 = runs.openRun('ultron', { root, date: d, meta: { complexity: 'complex' } });
+  const r1 = runs.openRun('projeto-a', { root, date: d, meta: { complexity: 'medium' } });
+  const r2 = runs.openRun('projeto-b', { root, date: d, meta: { complexity: 'complex' } });
   console.log('  run1:', r1.runId);
   console.log('  run2:', r2.runId);
 
-  ok('runId deterministic format (logitok)', r1.runId === 'run-logitok-20260603T024500', r1.runId);
-  ok('runId deterministic format (ultron)', r2.runId === 'run-ultron-20260603T024500', r2.runId);
+  ok('runId deterministic format (projeto-a)', r1.runId === 'run-projeto-a-20260603T024500', r1.runId);
+  ok('runId deterministic format (projeto-b)', r2.runId === 'run-projeto-b-20260603T024500', r2.runId);
   ok('multi-run mode active after openRun', runs.isMultiRunMode(root) === true);
   ok('index lists both runs', runs.listActiveRuns(root).length === 2,
     JSON.stringify(runs.listActiveRuns(root)));
 
   // write DIFFERENT state into each run
-  runs.writeRunStatus(r1.runId, { phase: 'execution', activeAgent: 'forge', activeTask: 'LogiTok cobranca', project: 'logitok' }, root);
-  runs.writeRunStatus(r2.runId, { phase: 'review', activeAgent: 'aegis', activeTask: 'Ultron dispatcher', project: 'ultron' }, root);
+  runs.writeRunStatus(r1.runId, { phase: 'execution', activeAgent: 'forge', activeTask: 'Projeto-A cobranca', project: 'projeto-a' }, root);
+  runs.writeRunStatus(r2.runId, { phase: 'review', activeAgent: 'aegis', activeTask: 'Projeto-B dispatcher', project: 'projeto-b' }, root);
 
   const s1 = runs.readRunStatus(r1.runId, root);
   const s2 = runs.readRunStatus(r2.runId, root);
   console.log('  run1 state:', JSON.stringify({ phase: s1.phase, agent: s1.activeAgent, task: s1.activeTask }));
   console.log('  run2 state:', JSON.stringify({ phase: s2.phase, agent: s2.activeAgent, task: s2.activeTask }));
 
-  ok('run1 state isolated', s1.phase === 'execution' && s1.activeAgent === 'forge' && s1.activeTask === 'LogiTok cobranca');
-  ok('run2 state isolated', s2.phase === 'review' && s2.activeAgent === 'aegis' && s2.activeTask === 'Ultron dispatcher');
+  ok('run1 state isolated', s1.phase === 'execution' && s1.activeAgent === 'forge' && s1.activeTask === 'Projeto-A cobranca');
+  ok('run2 state isolated', s2.phase === 'review' && s2.activeAgent === 'aegis' && s2.activeTask === 'Projeto-B dispatcher');
   ok('NO cross-contamination (run1 != run2)', s1.activeTask !== s2.activeTask && s1.phase !== s2.phase);
 
   // results isolation
-  runs.writeRunResult(r1.runId, 'forge', { status: 'success', diff: 'logitok-only' }, root);
-  runs.writeRunResult(r2.runId, 'forge', { status: 'success', diff: 'ultron-only' }, root);
+  runs.writeRunResult(r1.runId, 'forge', { status: 'success', diff: 'projeto-a-only' }, root);
+  runs.writeRunResult(r2.runId, 'forge', { status: 'success', diff: 'projeto-b-only' }, root);
   const res1 = JSON.parse(fs.readFileSync(path.join(r1.resultsDir, 'forge.json'), 'utf8'));
   const res2 = JSON.parse(fs.readFileSync(path.join(r2.resultsDir, 'forge.json'), 'utf8'));
-  ok('results isolated per run', res1.diff === 'logitok-only' && res2.diff === 'ultron-only');
+  ok('results isolated per run', res1.diff === 'projeto-a-only' && res2.diff === 'projeto-b-only');
 
   // ---- TEST 2: concurrent activity-log appends through the lock ----
   console.log('\n--- TEST 2 (concurrent append): 2 simultaneous appends via lock ---');
@@ -90,7 +90,7 @@ async function main() {
     const agent = i % 2 === 0 ? 'forge' : 'aegis';
     ops.push(
       activityLog.appendActivity(
-        { agent, action: `concurrent_append_${i}`, project: i % 2 === 0 ? 'logitok' : 'ultron' },
+        { agent, action: `concurrent_append_${i}`, project: i % 2 === 0 ? 'projeto-a' : 'projeto-b' },
         { root, runId: fromRun, agent: 'orchestrator' }
       )
     );
@@ -121,13 +121,13 @@ async function main() {
   // ---- TEST 4 (B1 regression): same project + same second must NOT collide ----
   console.log('\n--- TEST 4 (B1): 2 runs, same project, same second => distinct dirs ---');
   const sameSec = new Date('2026-06-03T01:15:00Z');
-  const c1 = runs.openRun('logitok', { root, date: sameSec });
-  const c2 = runs.openRun('logitok', { root, date: sameSec }); // same project, same second
+  const c1 = runs.openRun('projeto-a', { root, date: sameSec });
+  const c2 = runs.openRun('projeto-a', { root, date: sameSec }); // same project, same second
   console.log('  collide run1:', c1.runId);
   console.log('  collide run2:', c2.runId);
 
-  ok('B1: base runId on first call', c1.runId === 'run-logitok-20260603T011500', c1.runId);
-  ok('B1: second call disambiguated (suffix)', c2.runId === 'run-logitok-20260603T011500-2', c2.runId);
+  ok('B1: base runId on first call', c1.runId === 'run-projeto-a-20260603T011500', c1.runId);
+  ok('B1: second call disambiguated (suffix)', c2.runId === 'run-projeto-a-20260603T011500-2', c2.runId);
   ok('B1: 2 DISTINCT runIds (no alias)', c1.runId !== c2.runId);
   ok('B1: 2 DISTINCT run-dirs on disk', c1.dir !== c2.dir
     && fs.existsSync(c1.dir) && fs.existsSync(c2.dir));

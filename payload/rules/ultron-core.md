@@ -7,7 +7,7 @@ This checklist is MANDATORY. Follow it in the ORDER given for EVERY mission.
 ### 1. Best Model + Vault Consult (MANDATORY)
 - **Sempre usar o melhor modelo disponivel (Opus)** para maximizar o resultado final — sem roteamento por custo. Nao ha limite de uso a respeitar e o objetivo e a melhor entrega possivel, entao nunca faca downgrade para um modelo menor.
 - **Consulta OBRIGATORIA ao Vault ANTES de planejar/dispatchar:** leia `wiki/` em busca de alteracoes recentes e contexto do projeto (ver passo abaixo). UNICA excecao: projeto novo sem nada no Vault (consulta vazia → segue normalmente).
-  - Tool-agnostico: via MCP Obsidian OU leitura direta de `~/Documents/COFRE -01/wiki/`. Fallback (MCP falha/timeout 5s) → leitura direta de disco.
+  - Tool-agnostico: via MCP Obsidian OU leitura direta de `~/Documents/<SEU-VAULT>/wiki/`. Fallback (MCP falha/timeout 5s) → leitura direta de disco.
 
 ### 2. Classify Complexity
 - simple: 1-3 files, point fix, zero ambiguity

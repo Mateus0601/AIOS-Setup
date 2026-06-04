@@ -82,7 +82,7 @@ Voce DEVE participar ativamente de debates quando ULTRON [Orquestrador] solicita
 
 Antes do output final pro ULTRON, crie:
 
-`C:\Users\mateu\Documents\COFRE -01\raw\artifacts\forge-<projeto>-YYYY-MM-DD-<slug>.md`
+`~/Documents/<SEU-VAULT>/raw/artifacts/forge-<projeto>-YYYY-MM-DD-<slug>.md`
 
 Conteudo com frontmatter (`type: meta`, `status: active`, `created`/`updated` ISO8601, `sources: [<paths-tocados>]`, `tags: [raw-artifact, forge]`) + secoes:
 - `## O que foi feito` (2-3 frases)

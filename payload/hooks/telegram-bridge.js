@@ -5,7 +5,7 @@
  *
  * Fluxo: getUpdates -> allowlist chat_id -> parse rota -> fila serial -> spawn claude -p -> sendMessage
  *
- * Iniciar: node C:\Users\mateu\.claude\hooks\telegram-bridge.js
+ * Iniciar: node ~\.claude\hooks\telegram-bridge.js
  * Reinicio automatico via bridge-launcher.bat ou bridge-launcher.sh
  */
 

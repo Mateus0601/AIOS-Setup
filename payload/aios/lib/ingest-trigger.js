@@ -37,8 +37,8 @@ try {
 // ─── Config de paths ───────────────────────────────────────────────────────
 // Usa a home do usuário para construir paths absolutos.
 // Isso evita depender do cwd de onde o script é chamado.
-const HOME       = process.env.HOME || process.env.USERPROFILE || 'C:/Users/mateu';
-const VAULT_ROOT = process.env.AIOS_VAULT_ROOT || path.join(HOME, 'Documents', 'COFRE -01');
+const HOME       = process.env.HOME || process.env.USERPROFILE || '~';
+const VAULT_ROOT = process.env.AIOS_VAULT_ROOT || path.join(HOME, 'Documents', '<SEU-VAULT>');
 const SCHEMA_PATH = path.join(HOME, '.claude', 'aios', 'schemas', 'wiki-frontmatter.json');
 
 // Subpastas do vault

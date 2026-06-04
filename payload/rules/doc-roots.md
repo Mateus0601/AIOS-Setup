@@ -74,7 +74,7 @@ All details live on disk and are read only when needed.
 | JSON schema validation                   | schemas per domain                             | schemas/                         |
 | Templates (mission-board, evolution)     | mission-board.md, evolution-log.md             | (aios/ root)                     |
 
-**Base path:** `C:\Users\mateu\.claude\aios\`
+**Base path:** `~\.claude\aios\`
 
 ## Inviolable Rules (13)
 

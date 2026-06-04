@@ -15,7 +15,7 @@ deterministic id:
 
 ```
 run-{project}-{YYYYMMDDTHHmmss}
-e.g. run-logitok-20260603T024500
+e.g. run-projeto-a-20260603T024500
 ```
 
 Everything that is "live state of an execution" is namespaced by `runId`. Two
@@ -29,7 +29,7 @@ runs NEVER touch the same state file — isolation is by construction.
                             { schema: "aios-runs-index-v1", activeRuns: [...], lastUpdate }
                             (legacy single-run shape "aios-status-v1" still valid)
   runs/
-    run-logitok-20260603T0245/
+    run-projeto-a-20260603T0245/
       status.json         <- full per-run state (the 13 legacy fields, "aios-status-v1")
       results/            <- structured agent returns (1 file per agent: forge.json, aegis.json)
     run-ultron-20260603T0246/
@@ -107,7 +107,7 @@ Formalized in `agent-templates.md` ("Regra de Ouro — Orquestrador Escreve").
 ## Write isolation — directory vs worktree
 
 - **Trust directory separation (default):** parallel agents on DIFFERENT projects
-  (LogiTok vs Ultron) — distinct folders, zero file overlap. No worktree needed.
+  (Projeto-A vs Ultron) — distinct folders, zero file overlap. No worktree needed.
   This is the main case.
 - **git worktree per agent (Fase B / T12):** only when 2+ agents work the SAME
   project and may touch overlapping files. Each agent gets an isolated worktree;
